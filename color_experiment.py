@@ -21,12 +21,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-
 import random
-# Folder with stimuli
-stimuli_folder = r"C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli"
+
+# Root folder of your app
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Path to stimuli folder (relative)
+stimuli_folder = os.path.join(ROOT, "stimuli")
+
+# Initialize stimuli in session state
 if "stimuli" not in st.session_state:
+    if not os.path.exists(stimuli_folder):
+        st.error(f"Stimuli folder not found: {stimuli_folder}")
+        st.stop()
     st.session_state.stimuli = sorted(os.listdir(stimuli_folder))
 
 if "trial_idx" not in st.session_state:
