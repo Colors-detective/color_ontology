@@ -81,7 +81,7 @@ if not st.session_state.participant_info_done:
         age_list = [str(i) for i in range(0, 81)]
         st.session_state.age = st.selectbox("Age", age_list)
 
-        countries = ["United States", "Japan", "France", "Senegal", "Other"]
+        countries = ["Russia", "Japan", "France","United States", "Senegal", "Other"]
         st.session_state.country = st.selectbox("Country", countries)
 
         if st.button("Submit Info"):
