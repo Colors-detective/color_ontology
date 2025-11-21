@@ -97,14 +97,7 @@ if not st.session_state.participant_info_done:
 
 trial = st.session_state.trial_idx
 if st.session_state.participant_info_done:
- st.markdown("""
-### Instructions  
-Please look at each color stimulus and type the color name that best describes it.  
-Click **Next** to move to the following stimulus.  
-There is no wrong answer — enjoy the experiment!
-""")
-
-if trial >= len(st.session_state.stimuli):
+ if trial >= len(st.session_state.stimuli):
     st.success("Experiment finished! Congratulations!")
     st.write(st.session_state.results)
     df = pd.DataFrame(st.session_state.results)
@@ -115,10 +108,17 @@ if trial >= len(st.session_state.stimuli):
     df["country"] = st.session_state.country
     st.dataframe(df)
     df.to_csv("final_results.csv", index=True) 
-    st.ballon()
+    st.balloons()
     st.stop()
 
-
+trial = st.session_state.trial_idx
+if st.session_state.participant_info_done:
+ st.markdown("""
+### Instructions  
+Please look at each color stimulus and type the color name that best describes it.  
+Click **Next** to move to the following stimulus.  
+There is no wrong answer — enjoy the experiment!
+""")
 # Show the current image
 filename = st.session_state.stimuli[trial]
 img_path = os.path.join(stimuli_folder, filename)
