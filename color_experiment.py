@@ -67,7 +67,7 @@ if not st.session_state.participant_info_done:
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
             "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
             "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown in total **300 trials** successively.Therefore in principle, **300 names** " \
-            "are expected to be collected per participant." \
+            "are expected to be collected per participant. " \
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
@@ -281,8 +281,14 @@ if col4.button ("voiced instructions 🗣️"):
 # Submit final results early
 with col3:
     if st.button("✅ End"):
-              st.success("Are you sure to submit now?")
-              df = pd.DataFrame(st.session_state.results)
-              st.dataframe(df)
-              df.to_csv("final_results.csv", index=True) 
-              st.ballon()
+            st.success("Thank you for your interest in doing the experiment until now." \
+              "You may close the browser. Do not hesitate to retake the text if you change your mind." \
+            "Kind regards")
+            save_trial_result(
+            trial_idx=trial,
+            img_path=img_path,
+            typed_color=typed_color.lower() if typed_color else None,
+            rt=rt,
+            audio_input=audio_value,
+        )
+            st.stop()
