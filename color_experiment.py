@@ -284,7 +284,7 @@ if col4.button ("voiced instructions 🗣️"):
 # Submit final results early
 if col3.button("✅ End"):
     st.session_state.paused = True
-    st.title("Thank you!")
+    st.title("You ended the experiment.")
     st.write(
         "Thank you for your interest in participating in our experiment. "
         "You may now safely close the browser. "
@@ -299,6 +299,6 @@ if col3.button("✅ End"):
     rt=rt,
     audio_input=audio_value,
         )
-    
+    st.rerun()
     
 
