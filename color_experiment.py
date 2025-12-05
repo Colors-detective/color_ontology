@@ -291,7 +291,7 @@ if col3.button("✅ End"):
         "Do not hesitate to retake the test if you change your mind.\n\n"
         "Kind regards."
     )
-    st.stop()
+    
     save_trial_result(
     trial_idx=trial,
     img_path=img_path,
@@ -299,6 +299,7 @@ if col3.button("✅ End"):
     rt=rt,
     audio_input=audio_value,
         )
+    st.stop()
     st.rerun()
     
 
