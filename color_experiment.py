@@ -65,7 +65,7 @@ if not st.session_state.participant_info_done:
         st.subheader("Please read read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
+            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
             "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. We have in total **300 colors**, therefore in principle, **300 names** " \
             "is expected to be collected per participant." \
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
@@ -95,6 +95,14 @@ if not st.session_state.participant_info_done:
             "They may also be reused by the research team of Color Diversity Lab or any other lab interested in the study data for the purpose of ulterior scientific research, under the condition that they remain fully pseudonymized.  "
             
         )
+
+        st.subheader("Contact ")
+        st.markdown(
+            "You can reach out anytime if you have any complaints, suggestions or curiosity driven questions related to our study. "
+            "Experimenter: Meissa Sow (Graduate School of Design, Kyushu University, Japan) email address: sow.ndeye.meissa.042@s.kyushu-u.ac.jp" \
+            "Principal Investigator: Chihiro Hiramatsu (Graduate School of Design, Kyushu University, Japan) " \
+            
+            )
         agree = st.checkbox("**I agree to the terms and conditions, and wave my rights to take participation to the study**")
         Disagree= st.checkbox ("**I disagree to the terms and conditions and therefore want to leave.**")
 
