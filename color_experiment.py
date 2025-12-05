@@ -77,7 +77,7 @@ if not st.session_state.participant_info_done:
         st.subheader("Participation in the Project")
         st.markdown(
             "Your participation in this project is **voluntary**. You understand that you will **not be paid** for your participation. You may withdraw and discontinue participation at any time without penalty." \
-            " If you feel uncomfortable in any way during the experiment, you have the right to leave by clicking on the button `End´ to force the experiment to stop, then simply close the browser."
+            " If you feel uncomfortable in any way during the experiment, you have the right to leave by clicking on the button `**End**´ to force the experiment to stop, then simply close the browser."
             " With your permission, your response time, responses in either format (text and audio) will be saved. "
             "In agreeing to participate to the experiment, you will be asked to provided additionnally, some information related to your gender, your place of residence, your country of birth, your" \
             " first language of proficiency, and if applicable, your second language, third and fourth of proficiency. "
