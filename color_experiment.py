@@ -298,6 +298,7 @@ if col3.button("✅ End"):
     typed_color=typed_color.lower() if typed_color else None,
     rt=rt,
     audio_input=audio_value,
+    participant_id= participant_id 
         )
     df["participant_id"] = st.session_state.participant_id
     df["gender"] = st.session_state.gender
