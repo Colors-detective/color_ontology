@@ -68,7 +68,7 @@ if not st.session_state.participant_info_done:
             "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
             "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown in total **300 trials** successively.Therefore in principle, **300 names** " \
             "are expected to be collected per participant." \
-            "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
+            "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
             "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
