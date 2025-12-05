@@ -65,14 +65,14 @@ if not st.session_state.participant_info_done:
         st.subheader("Please read read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
-            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. We have in total **300 colors**, therefore in principle, **300 names** " \
+            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. Therefore, labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories."
+            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. There are in total **300 trials** presenting at each one color, therefore, in principle, **300 names** " \
             "is expected to be collected per participant." \
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
             "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
-            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. "
+            
         )
         st.subheader("Participation in the Project")
         st.markdown(
@@ -147,36 +147,6 @@ if not st.session_state.participant_info_done:
      st.write("You may now close the browser.")
 
     st.stop()
-
-
-
-# Participant info page
-if not st.session_state.participant_info_done:
-
-    left, center, right = st.columns([1, 40, 1])
-    with center:
-        st.title("Welcome to the Color Naming experiment!")
-        st.subheader("Please insert your information before starting.")
-        st.subheader("Thank you!")
-
-        st.markdown("### Participant Info")
-        st.write(f"Your Participant ID: **{st.session_state.participant_id}**")
-
-        st.session_state.gender = st.radio("Gender", ["Male", "Female", "Other"])
-
-        age_list = [str(i) for i in range(0, 81)]
-        st.session_state.age = st.selectbox("Age", age_list)
-
-        countries = ["Russia", "Japan", "France","United States", "Senegal", "Other"]
-
-        st.session_state.country = st.selectbox("Country", countries)
-        if st.button("Submit Info"):
-            st.session_state.participant_info_done = True
-            st.session_state.trigger_rerun = not st.session_state.get("trigger_rerun", False)
-
-    st.stop()  
-
-
 
 # trial workflow for the end and layout of the stimuli and time
 
