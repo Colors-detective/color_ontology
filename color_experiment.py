@@ -289,10 +289,10 @@ if col3.button("✅ End"):
         img_path=img_path,
         typed_color=typed_color.lower() if typed_color else None,
         rt=rt,
-        audio_input=audio_value,
-        
+        audio_input=audio_value,   
     )
-
+    st.write(st.session_state.results)
+    df = pd.DataFrame(st.session_state.results)
     # Add participant metadata
     df["participant_id"] = st.session_state.participant_id
     df["gender"] = st.session_state.gender
