@@ -24,7 +24,8 @@ st.markdown(
 
 import random
 # Folder with stimuli
-stimuli_folder = r"C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli"
+stimuli_folder = os.path.join(os.path.dirname(__file__), "stimuli")
+
 if "stimuli" not in st.session_state:
     st.session_state.stimuli = sorted(os.listdir(stimuli_folder))
 
@@ -86,11 +87,6 @@ if not st.session_state.participant_info_done:
             st.session_state.age = st.selectbox("Age", age_list)
 
             countries = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
-
-            Language1 = ["Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            Language2 = ["None", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            Language3 = ["None", "Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            other = ["None", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
 
             st.session_state.lang1 = st.selectbox("Language of Proficiency 1", Language1)
             st.session_state.lang2 = st.selectbox("Language of Proficiency 2", Language2)
