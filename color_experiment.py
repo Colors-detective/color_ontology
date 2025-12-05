@@ -66,8 +66,8 @@ if not st.session_state.participant_info_done:
         st.markdown(
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
             "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. Therefore, labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories."
-            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. There are in total **300 trials** presenting at each one color, therefore, in principle, **300 names** " \
-            "is expected to be collected per participant." \
+            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. There are in total **300 trials** presenting at each one color, therefore, in principle, **300 names in total** " \
+            "are expected to be collected, per participant." \
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
