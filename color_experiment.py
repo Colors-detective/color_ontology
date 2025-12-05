@@ -87,7 +87,13 @@ if not st.session_state.participant_info_done:
             age_list = [str(i) for i in range(0, 81)]
             st.session_state.age = st.selectbox("Age", age_list)
 
+            country_birth = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
+            st.session_state.countries = st.selectbox("Country of birth)", country_birth)
             countries = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
+            st.session_state.countries = st.selectbox("Country of Residence (for at least a year)", countries)
+            countries2 = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
+            st.session_state.countries2 = st.selectbox("Country of Residence (for at least six months)", countries2)
+
             # Defining the variables
             Language1 = ["Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
             Language2 = ["None", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
