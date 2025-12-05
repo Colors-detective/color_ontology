@@ -281,9 +281,34 @@ if col2.button("Next⏭️"):
 if col4.button ("voiced instructions 🗣️"):
   st.audio("cat-purr.mp3", format="audio/mpeg", loop=True)
          
-# Submit final results early
 if col3.button("✅ End"):
+
+    # Save all trial data first
+    save_trial_result(
+        trial_idx=trial,
+        img_path=img_path,
+        typed_color=typed_color.lower() if typed_color else None,
+        rt=rt,
+        audio_input=audio_value,
+        
+    )
+
+    # Add participant metadata
+    df["participant_id"] = st.session_state.participant_id
+    df["gender"] = st.session_state.gender
+    df["age"] = st.session_state.age
+    df["Country of birth"] = st.session_state.country_birth
+    df["Country of Residence (for at least a year)"]= st.session_state.countries
+    df["Country of Residence (for at least six months)"]= st.session_state.countries2
+    df["Language of Proficiency 1"] = st.session_state.lang1
+    df["Language of Proficiency 2"] = st.session_state.lang2
+    df["Language of Proficiency 3"] = st.session_state.lang3
+    df["Other"] = st.session_state.lang4
+
+    df.to_csv("final_results.csv", index=True)
+
     st.session_state.paused = True
+
     st.title("You ended the experiment.")
     st.write(
         "Thank you for your interest in participating in our experiment. "
@@ -291,30 +316,9 @@ if col3.button("✅ End"):
         "Do not hesitate to retake the test if you change your mind.\n\n"
         "Kind regards."
     )
-    
-    save_trial_result(
-    trial_idx=trial,
-    img_path=img_path,
-    typed_color=typed_color.lower() if typed_color else None,
-    rt=rt,
-    audio_input=audio_value,
-    participant_id= participant_id 
-        )
-    df["participant_id"] = st.session_state.participant_id
-    df["gender"] = st.session_state.gender
-    df["age"] = st.session_state.age
-    df["Country of birth"] = st.session_state.country_birth
-    df["Country of Residence (for at least a year)"]= st.session_state.countries
-    df["Country of Residence (for at least six months)"]= st.session_state.countries2
-    df["Language of Proficiency 1 or birth language"]= st.session_state.lang1
-    df["Language of Proficiency 2"]= st.session_state.lang2
-    df["Language of Proficiency 3"]= st.session_state.lang3
-    df["Other"]= st.session_state.lang4
-
 
     st.dataframe(df)
-    df.to_csv("final_results.csv", index=True) 
+
     st.stop()
-    st.rerun()
-    
+
 
