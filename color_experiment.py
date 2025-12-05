@@ -5,8 +5,7 @@ import random
 import time
 import pandas as pd
 import os
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+
 
 
 st.markdown(
@@ -61,20 +60,6 @@ if "age" not in st.session_state:
 
 if "country" not in st.session_state:
     st.session_state.country = None  # will be set by user
-
-
-
-def save_to_google_sheet(row_data):
-    scope = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        st.secrets["gcp_service_account"], scope
-    )
-    client = gspread.authorize(creds)
-    sheet = client.open("color_experimentMeissa_results").sheet1
-    sheet.append_row(row_data)
 
 
 # Participant info page
@@ -227,23 +212,6 @@ if st.session_state.participant_info_done:
 
         st.dataframe(df)
         df.to_csv("final_results.csv", index=True)
-
-        save_to_google_sheet([
-            trial,
-            st.session_state.img_path,
-            st.session_state.typed_color,
-            st.session_state.audio_input,
-            st.session_state.participant_id,
-            st.session_state.gender,
-            st.session_state.age,
-            st.session_state.country_birth,
-            st.session_state.countries,
-            st.session_state.countries2,
-            st.session_state.lang1,
-            st.session_state.lang2,
-            st.session_state.lang3,
-        ])
-
         st.balloons()
         st.stop()
 
@@ -344,23 +312,6 @@ if col3.button("✅ End"):
     df["Other"] = st.session_state.lang4
 
     df.to_csv("final_results.csv", index=True)
-
-    # Send data to Google Sheet
-    save_to_google_sheet([
-        trial,              # correct trial index
-        img_path,           # correct path
-        typed_color.lower() if typed_color else None,
-        audio_value,        # correct audio variable
-        st.session_state.participant_id,
-        st.session_state.gender,
-        st.session_state.age,
-        st.session_state.country_birth,
-        st.session_state.countries,
-        st.session_state.countries2,
-        st.session_state.lang1,
-        st.session_state.lang2,
-        st.session_state.lang3,
-    ])
 
     st.session_state.end = True
 
