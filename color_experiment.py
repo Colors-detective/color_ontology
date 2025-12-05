@@ -50,6 +50,9 @@ if "participant_id" not in st.session_state:
 if "gender" not in st.session_state:
     st.session_state.gender = None  # will be set by user
 
+if "end" not in st.session_state:
+    st.session_state.end = False  # will be set by user
+
 if "age" not in st.session_state:
     st.session_state.age = None  # will be set by user
 
@@ -281,8 +284,9 @@ if col4.button ("voiced instructions 🗣️"):
 # Submit final results early
 with col3:
     if st.button("✅ End"):
-            st.success("Thank you for your interest in doing the experiment until now." \
-              "You may close the browser. Do not hesitate to retake the text if you change your mind." \
+            st.session_state.end = True 
+            st.write("Thank you for your interest in doing the experiment until now.  " \
+            "You may close the browser. Do not hesitate to retake the test if you change your mind.   " \
             "Kind regards")
             save_trial_result(
             trial_idx=trial,
