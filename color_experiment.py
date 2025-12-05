@@ -65,14 +65,14 @@ if not st.session_state.participant_info_done:
         st.subheader("Please read read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. Therefore, labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories."
-            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. There are in total **300 trials** presenting at each one color, therefore, in principle, **300 names in total** " \
-            "are expected to be collected, per participant." \
+            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
+            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown in total **300 trials** successively.Therefore in principle, **300 names** " \
+            "are expected to be collected per participant." \
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
             "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
-            
+            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. "
         )
         st.subheader("Participation in the Project")
         st.markdown(
@@ -122,7 +122,7 @@ if not st.session_state.participant_info_done:
             st.session_state.age = st.selectbox("Age", age_list)
 
             country_birth = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
-            st.session_state.countries = st.selectbox("Country of birth)", country_birth)
+            st.session_state.country_birth = st.selectbox("Country of birth)", country_birth)
             countries = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
             st.session_state.countries = st.selectbox("Country of Residence (for at least a year)", countries)
             countries2 = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
@@ -148,6 +148,36 @@ if not st.session_state.participant_info_done:
 
     st.stop()
 
+
+
+# Participant info page
+if not st.session_state.participant_info_done:
+
+    left, center, right = st.columns([1, 40, 1])
+    with center:
+        st.title("Welcome to the Color Naming experiment!")
+        st.subheader("Please insert your information before starting.")
+        st.subheader("Thank you!")
+
+        st.markdown("### Participant Info")
+        st.write(f"Your Participant ID: **{st.session_state.participant_id}**")
+
+        st.session_state.gender = st.radio("Gender", ["Male", "Female", "Other"])
+
+        age_list = [str(i) for i in range(0, 81)]
+        st.session_state.age = st.selectbox("Age", age_list)
+
+        countries = ["Russia", "Japan", "France","United States", "Senegal", "Other"]
+
+        st.session_state.country = st.selectbox("Country", countries)
+        if st.button("Submit Info"):
+            st.session_state.participant_info_done = True
+            st.session_state.trigger_rerun = not st.session_state.get("trigger_rerun", False)
+
+    st.stop()  
+
+
+
 # trial workflow for the end and layout of the stimuli and time
 
 
@@ -161,7 +191,15 @@ if st.session_state.participant_info_done:
     df["participant_id"] = st.session_state.participant_id
     df["gender"] = st.session_state.gender
     df["age"] = st.session_state.age
-    df["country"] = st.session_state.country
+    df["Country of birth"] = st.session_state.country_birth
+    df["Country of Residence (for at least a year)"]= st.session_state.countries
+    df["Country of Residence (for at least six months)"]= st.session_state.countries2
+    df["Language of Proficiency 1 or birth language"]= st.session_state.lang1
+    df["Language of Proficiency 2"]= st.session_state.lang2
+    df["Language of Proficiency 3"]= st.session_state.lang3
+    df["Other"]= st.session_state.lang4
+
+
     st.dataframe(df)
     df.to_csv("final_results.csv", index=True) 
     st.balloons()
