@@ -299,6 +299,20 @@ if col3.button("✅ End"):
     rt=rt,
     audio_input=audio_value,
         )
+    df["participant_id"] = st.session_state.participant_id
+    df["gender"] = st.session_state.gender
+    df["age"] = st.session_state.age
+    df["Country of birth"] = st.session_state.country_birth
+    df["Country of Residence (for at least a year)"]= st.session_state.countries
+    df["Country of Residence (for at least six months)"]= st.session_state.countries2
+    df["Language of Proficiency 1 or birth language"]= st.session_state.lang1
+    df["Language of Proficiency 2"]= st.session_state.lang2
+    df["Language of Proficiency 3"]= st.session_state.lang3
+    df["Other"]= st.session_state.lang4
+
+
+    st.dataframe(df)
+    df.to_csv("final_results.csv", index=True) 
     st.stop()
     st.rerun()
     
