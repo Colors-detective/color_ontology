@@ -65,37 +65,38 @@ if not st.session_state.participant_info_done:
         st.subheader("Please read read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
             "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our experiment aims to build an ethnosemantic analysis of cultures and their color categorization. "
-            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. We have in total 300 colors, therefore in principle, 300 names " \
+            "related to the perception of colors. Our experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
+            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. We have in total **300 colors**, therefore in principle, **300 names** " \
             "is expected to be collected per participant." \
-            "The format of providing names is free, not time constrained, and you can be as much descriptive or specific as possible."
-            "You can either type your response or record it"
-            "We encourage every participant to provide their effort into finishing the color naming task through at least 80% of the trials. " \
-            "You are free to pause and resume later the experiment when feeling exhausted. None of your data will be lost if you remain the page open."
-            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories."
+            "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible."
+            "You can either type your response or record it. "
+            "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
+            "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
+            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. "
         )
         st.subheader("Participation in the Project")
         st.markdown(
-            "Your participation in this project is voluntary. You understand that you will not be paid for your participation. You may withdraw and discontinue participation at any time without penalty." \
-            " If you feel uncomfortable in any way during the experiment, you have the right to leave by clicking on the button `End´ to force the experiment to stop and then exist the browser."
-            " With your permission, your response time, responses in either format (text and audio) will be saved."
+            "Your participation in this project is **voluntary**. You understand that you will **not be paid** for your participation. You may withdraw and discontinue participation at any time without penalty." \
+            " If you feel uncomfortable in any way during the experiment, you have the right to leave by clicking on the button `End´ to force the experiment to stop, then simply close the browser."
+            " With your permission, your response time, responses in either format (text and audio) will be saved. "
             "In agreeing to participate to the experiment, you will be asked to provided additionnally, some information related to your gender, your place of residence, your country of birth, your" \
-            " first language of proficiency, and if applicable, your second language, third and fourth of proficiency."
+            " first language of proficiency, and if applicable, your second language, third and fourth of proficiency. "
         )
         st.subheader("Confidentiality ")
         st.markdown(
-            "Your anonymousity as a participant in this study will remain the same through the carried study. No information allowing your identification will be stored. The experiment results will be stored in a secure and encrypted database " \
+            "To ensure anonymosity, you will be assigned a random ID of participation after agreeing to the terms and conditions of the experiment. "
+            "Your **anonymousity** as a participant in this study will **remain the same** through the carried study. No information allowing your identification will be stored. The experiment results will be stored in a secure and encrypted database " \
             "located in the server of our laboratory under the supervision of our team and University authority. " \
-            "Your identity is referred as a random assigned ID when you agree to take the experiment."
+            
         )
         st.subheader("Data Usage")
         st.markdown(
-            "The collected data will be used for the purpose of scientific research exclusively. They may be communicated to the scientific partners of the research project and to the authorities upon their explicit request in case of a criminal investigation. " \
+            "The collected data will be used for the purpose of **scientific research exclusively**. They may be communicated to the scientific partners of the research project and to the authorities upon their explicit request in case of a criminal investigation. " \
             "They may also be reused by the research team of Color Diversity Lab or any other lab interested in the study data for the purpose of ulterior scientific research, under the condition that they remain fully pseudonymized.  "
             
         )
-        agree = st.checkbox("I agree to the terms and conditions, and wave my rights to take participation to the study")
-        Disagree= st.checkbox ("I disagree to take to the terms and conditions and therefore want to leave.")
+        agree = st.checkbox("**I agree to the terms and conditions, and wave my rights to take participation to the study**")
+        Disagree= st.checkbox ("**I disagree to take to the terms and conditions and therefore want to leave.**")
 
         if agree:
             st.write("Great! Before proceeding please provide the following information. "
