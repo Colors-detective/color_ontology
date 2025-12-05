@@ -307,7 +307,7 @@ if col3.button("✅ End"):
 
     df.to_csv("final_results.csv", index=True)
 
-    st.session_state.paused = True
+    st.session_state.end = True
 
     st.title("You ended the experiment.")
     st.write(
