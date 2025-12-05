@@ -314,7 +314,8 @@ if col3.button("✅ End"):
         "Thank you for your interest in participating in our experiment. "
         "You may now safely close the browser. "
         "Do not hesitate to retake the test if you change your mind.\n\n"
-        "Kind regards."
+        "You can take a look on results. " \
+        "Kind regards"
     )
 
     st.dataframe(df)
