@@ -5,6 +5,8 @@ import random
 import time
 import pandas as pd
 import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 st.markdown(
@@ -44,6 +46,7 @@ if "results" not in st.session_state:
 
 if "start_time" not in st.session_state:
     st.session_state.start_time = None
+
 if "participant_id" not in st.session_state:
     st.session_state.participant_id = random.randint(2000, 6000)
 
@@ -59,9 +62,24 @@ if "age" not in st.session_state:
 if "country" not in st.session_state:
     st.session_state.country = None  # will be set by user
 
+
+
+def save_to_google_sheet(row_data):
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope
+    )
+    client = gspread.authorize(creds)
+    sheet = client.open("color_experimentMeissa_results").sheet1
+    sheet.append_row(row_data)
+
+
 # Participant info page
 if not st.session_state.participant_info_done:
-
+   
     left, center, right = st.columns([1, 40, 1])
     with center:
         st.title("Welcome to our color naming Experiment!")
@@ -185,30 +203,49 @@ if not st.session_state.participant_info_done:
 
 
 trial = st.session_state.trial_idx
+
 if st.session_state.participant_info_done:
- if trial >= len(st.session_state.stimuli):
-    st.success("Experiment finished! Congratulations! Thank you for your precious participations. You can have a preview of your inputs responses.")
-    st.write(st.session_state.results)
-    df = pd.DataFrame(st.session_state.results)
-       # Add participant info columns at the end
-    df["participant_id"] = st.session_state.participant_id
-    df["gender"] = st.session_state.gender
-    df["age"] = st.session_state.age
-    df["Country of birth"] = st.session_state.country_birth
-    df["Country of Residence (for at least a year)"]= st.session_state.countries
-    df["Country of Residence (for at least six months)"]= st.session_state.countries2
-    df["Language of Proficiency 1 or birth language"]= st.session_state.lang1
-    df["Language of Proficiency 2"]= st.session_state.lang2
-    df["Language of Proficiency 3"]= st.session_state.lang3
-    df["Other"]= st.session_state.lang4
+    if trial >= len(st.session_state.stimuli):
 
+        st.success("Experiment finished! Congratulations! Thank you for your precious participation.")
+        st.write(st.session_state.results)
 
-    st.dataframe(df)
-    df.to_csv("final_results.csv", index=True) 
-    st.balloons()
-    st.stop()
-    
-    
+        df = pd.DataFrame(st.session_state.results)
+
+        # Add participant info columns at the end
+        df["participant_id"] = st.session_state.participant_id
+        df["gender"] = st.session_state.gender
+        df["age"] = st.session_state.age
+        df["rt"] = st.session_state.rt
+        df["Country of birth"] = st.session_state.country_birth
+        df["Country of Residence (for at least a year)"] = st.session_state.countries
+        df["Country of Residence (for at least six months)"] = st.session_state.countries2
+        df["Language of Proficiency 1"] = st.session_state.lang1
+        df["Language of Proficiency 2"] = st.session_state.lang2
+        df["Language of Proficiency 3"] = st.session_state.lang3
+        df["Other"] = st.session_state.lang4
+
+        st.dataframe(df)
+        df.to_csv("final_results.csv", index=True)
+
+        save_to_google_sheet([
+            trial,
+            st.session_state.img_path,
+            st.session_state.typed_color,
+            st.session_state.audio_input,
+            st.session_state.participant_id,
+            st.session_state.gender,
+            st.session_state.age,
+            st.session_state.country_birth,
+            st.session_state.countries,
+            st.session_state.countries2,
+            st.session_state.lang1,
+            st.session_state.lang2,
+            st.session_state.lang3,
+        ])
+
+        st.balloons()
+        st.stop()
 
     
 trial = st.session_state.trial_idx
@@ -283,29 +320,47 @@ if col4.button ("voiced instructions 🗣️"):
          
 if col3.button("✅ End"):
 
-    # Save all trial data first
+    # Save last trial result
     save_trial_result(
         trial_idx=trial,
         img_path=img_path,
         typed_color=typed_color.lower() if typed_color else None,
         rt=rt,
-        audio_input=audio_value,   
+        audio_input=audio_value,
     )
-    
+
     df = pd.DataFrame(st.session_state.results)
+
     # Add participant metadata
     df["participant_id"] = st.session_state.participant_id
     df["gender"] = st.session_state.gender
     df["age"] = st.session_state.age
     df["Country of birth"] = st.session_state.country_birth
-    df["Country of Residence (for at least a year)"]= st.session_state.countries
-    df["Country of Residence (for at least six months)"]= st.session_state.countries2
+    df["Country of Residence (for at least a year)"] = st.session_state.countries
+    df["Country of Residence (for at least six months)"] = st.session_state.countries2
     df["Language of Proficiency 1"] = st.session_state.lang1
     df["Language of Proficiency 2"] = st.session_state.lang2
     df["Language of Proficiency 3"] = st.session_state.lang3
     df["Other"] = st.session_state.lang4
 
     df.to_csv("final_results.csv", index=True)
+
+    # Send data to Google Sheet
+    save_to_google_sheet([
+        trial,              # correct trial index
+        img_path,           # correct path
+        typed_color.lower() if typed_color else None,
+        audio_value,        # correct audio variable
+        st.session_state.participant_id,
+        st.session_state.gender,
+        st.session_state.age,
+        st.session_state.country_birth,
+        st.session_state.countries,
+        st.session_state.countries2,
+        st.session_state.lang1,
+        st.session_state.lang2,
+        st.session_state.lang3,
+    ])
 
     st.session_state.end = True
 
@@ -314,8 +369,8 @@ if col3.button("✅ End"):
         "Thank you for your interest in participating in our experiment. "
         "You may now safely close the browser. "
         "Do not hesitate to retake the test if you change your mind.\n\n"
-        "You can take a look on results. " \
-        "Kind regards"
+        "You can preview your responses below.\n"
+        "Kind regards."
     )
 
     st.dataframe(df)

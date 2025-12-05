@@ -1,10 +1,3 @@
-,trial,image,typed_color,rt,audio_input,participant_id,gender,age,country
-0,0,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\1.png,dd,2.1916980743408203,,5581,Female,0,United States
-1,1,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\2.png,tz,4.250570297241211,,5581,Female,0,United States
-2,2,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\3.png,h,5.899524450302124,,5581,Female,0,United States
-3,3,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\4.png,jh,8.558817386627197,,5581,Female,0,United States
-4,4,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\5.png,ww,10.709869861602783,,5581,Female,0,United States
-5,5,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\6.png,ww,13.423080444335938,,5581,Female,0,United States
-6,6,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\7.png,ww,16.502176523208618,,5581,Female,0,United States
-7,7,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\8.png,qq,18.813840866088867,,5581,Female,0,United States
-8,8,C:\Users\davor\Documents\research_articles\color_naming_experiment_webdev\stimuli\9.png,aaa,25.75741195678711,,5581,Female,0,United States
+,trial,image,typed_color,rt,audio_input,participant_id,gender,age,Country of birth,Country of Residence (for at least a year),Country of Residence (for at least six months),Language of Proficiency 1,Language of Proficiency 2,Language of Proficiency 3,Other
+0,0,stimuli\1.png,,2.1696040630340576,,4322,Male,0,Russia,Russia,Russia,Russian,None,None,None
+1,0,stimuli\1.png,,2.7395994663238525,,4322,Male,0,Russia,Russia,Russia,Russian,None,None,None
