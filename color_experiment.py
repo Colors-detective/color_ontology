@@ -282,17 +282,23 @@ if col4.button ("voiced instructions 🗣️"):
   st.audio("cat-purr.mp3", format="audio/mpeg", loop=True)
          
 # Submit final results early
-with col3:
-    if st.button("✅ End"):
-            st.session_state.end = True 
-            st.write("Thank you for your interest in doing the experiment until now.  " \
-            "You may close the browser. Do not hesitate to retake the test if you change your mind.   " \
-            "Kind regards")
-            save_trial_result(
-            trial_idx=trial,
-            img_path=img_path,
-            typed_color=typed_color.lower() if typed_color else None,
-            rt=rt,
-            audio_input=audio_value,
+if col3.button("✅ End"):
+    st.session_state.paused = True
+    st.title("Thank you!")
+    st.write(
+        "Thank you for your interest in participating in our experiment. "
+        "You may now safely close the browser. "
+        "Do not hesitate to retake the test if you change your mind.\n\n"
+        "Kind regards."
+    )
+    st.stop()
+    save_trial_result(
+    trial_idx=trial,
+    img_path=img_path,
+    typed_color=typed_color.lower() if typed_color else None,
+    rt=rt,
+    audio_input=audio_value,
         )
-            st.stop()
+    
+    
+
