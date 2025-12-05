@@ -143,8 +143,8 @@ if not st.session_state.participant_info_done:
                 st.session_state.participant_info_done = True
                 st.rerun()
     if Disagree:
-     st.title("Thank you for participating!")
-     st.write("You may now exit the browser.")
+     st.title("Thank you for your attention!")
+     st.write("You may now close the browser.")
 
     st.stop()
 
