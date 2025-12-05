@@ -96,7 +96,7 @@ if not st.session_state.participant_info_done:
             
         )
         agree = st.checkbox("**I agree to the terms and conditions, and wave my rights to take participation to the study**")
-        Disagree= st.checkbox ("**I disagree to take to the terms and conditions and therefore want to leave.**")
+        Disagree= st.checkbox ("**I disagree to the terms and conditions and therefore want to leave.**")
 
         if agree:
             st.write("Great! Before proceeding please provide the following information. "
