@@ -98,7 +98,8 @@ if not st.session_state.participant_info_done:
 
         st.subheader("Contact ")
         st.markdown(
-            "You can reach out anytime if you have any complaints, suggestions or curiosity driven questions related to our study. "
+            "You can reach out anytime if you have any complaints, suggestions or curiosity driven questions related to our study.                               " \
+            ""
             "Experimenter: Meissa Sow (Graduate School of Design, Kyushu University, Japan) email address: sow.ndeye.meissa.042@s.kyushu-u.ac.jp" \
             "Principal Investigator: Chihiro Hiramatsu (Graduate School of Design, Kyushu University, Japan) " \
             
