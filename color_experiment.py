@@ -68,17 +68,18 @@ if not st.session_state.participant_info_done:
     left, center, right = st.columns([1, 40, 1])
     with center:
         st.title("Welcome to our color naming Experiment!")
-        st.subheader("Please read read thouroughlly the purpose, terms and condition of the experiment.")
+        st.subheader("Please read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
-            "We are a Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**. "
+            "We are the Color Diversity Lab team based in Japan, interested in studying various phenomena "
+            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**." \
+            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. " 
             "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown in total **300 trials** successively.Therefore in principle, **300 names** " \
-            "are expected to be collected per participant. " \
+            "are expected to be collected per participant. " \n
             "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
             "You can either type your response or record it. "
             "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
             "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
-            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. "
+            
         )
         st.subheader("Participation in the Project")
         st.markdown(
@@ -97,8 +98,8 @@ if not st.session_state.participant_info_done:
         )
         st.subheader("Data Usage")
         st.markdown(
-            "The collected data will be used for the purpose of **scientific research exclusively**. They may be communicated to the scientific partners of the research project and to the authorities upon their explicit request in case of a criminal investigation. " \
-            "They may also be reused by the research team of Color Diversity Lab or any other lab interested in the study data for the purpose of ulterior scientific research, under the condition that they remain fully pseudonymized.  "
+            "The collected data will be used for the purpose of **scientific research exclusively**. They may be reused and shared with other collaborators of the scientific community of the research project. " \
+                 " interested in the study data for the purpose of ulterior scientific research, under the condition that they remain fully anonymized."
             
         )
 
@@ -220,9 +221,10 @@ trial = st.session_state.trial_idx
 if st.session_state.participant_info_done:
  st.markdown("""
 ### Instructions  
-Please look at each color stimulus and type the color name that best describes it.  
-Click **Next** to move to the following stimulus.  
-There is no wrong answer — enjoy the experiment!
+Please look at the color appearing on your screen in the square and provide a description or a name that best describes it.**´".  
+Click on **Next⏭️** to move to the following stimulus.  
+There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible
+Enjoy the experiment!
 """)
 
 # Show the current image
@@ -258,13 +260,16 @@ col1, col2, col3, col4 = st.columns(4)
 if col1.button("Pause ⏸️"):
     st.session_state.paused = True
 #answer inputs style either writing or audio
-typed_color = st.text_input("Your answer", key=f"resp_{trial}", value="") 
-audio_value = st.audio_input("Record your voice", key=f"audio_{trial}")
+typed_color = st.text_input("Type your response here ⌨️📝", key=f"resp_{trial}", value="") 
+audio_value = st.audio_input("Record your voice here 🔊🎤 ", key=f"audio_{trial}", sample_rate=48000)
+
+if audio_value:
+    st.audio(audio_value)
 
 
 if st.session_state.start_time is None:
     st.session_state.start_time = time.time()
-rt = time.time() - st.session_state.start_time    
+    rt = time.time() - st.session_state.start_time    
 
 
 if col2.button("Next⏭️"):
