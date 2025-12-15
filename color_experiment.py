@@ -223,9 +223,9 @@ if st.session_state.participant_info_done:
 ### Instructions  
 Please look at the colored squqre appearing on your screen and provide a description or a name to it.
 You can provide your responses in two ways: 
--##either typed at **Type your response here ⌨️📝** below the image.
--##or through a recorded in  **Record your voice here 🔊🎤**.
- We strongly encourage you to maintain consistency through all the trials using only one input of response.
+-either typed at **Type your response here ⌨️📝** below the image.
+-or through a recorded in  **Record your voice here 🔊🎤**.
+ We strongly encourage you to maintain consistency through all the trials using only **ONE input** of response.
 For instance, after choosing to type your answer or record it at **Trial 1**, it is expected that you apply the same choice of response input for all the following trials.".  
 Click on **Next⏭️** to move to the following stimulus.  
 There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible.
