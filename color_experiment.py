@@ -221,10 +221,15 @@ trial = st.session_state.trial_idx
 if st.session_state.participant_info_done:
  st.markdown("""
 ### Instructions  
-Please look at the color appearing on your screen in the square and provide a description or a name that best describes it.**´".  
+Please look at the colored squqre appearing on your screen and provide a description or a name to it.
+You can provide your responses in two ways: 
+-either typed at **Type your response here ⌨️📝** below the image.
+- or through a recorded in  **Record your voice here 🔊🎤**.
+ We strongly encourage you to maintain consistency through all the trials using only one input of response.
+For instance, after choosing to type your answer or record it at **Trial 1**, it is expected that you apply the same choice of response input for all the following trials.".  
 Click on **Next⏭️** to move to the following stimulus.  
-There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible
-Enjoy the experiment!
+There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible.
+Thank you for cooperation and enjoy the experiment!
 """)
 
 # Show the current image
@@ -262,6 +267,8 @@ if col1.button("Pause ⏸️"):
 #answer inputs style either writing or audio
 typed_color = st.text_input("Type your response here ⌨️📝", key=f"resp_{trial}", value="") 
 audio_value = st.audio_input("Record your voice here 🔊🎤 ", key=f"audio_{trial}", sample_rate=48000)
+if audio_value:
+    rt = time.time() - st.session_state.start_time
 
 if audio_value:
     st.audio(audio_value)
