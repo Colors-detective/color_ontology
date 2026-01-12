@@ -1,0 +1,5 @@
+streamlit
+supabase
+psycopg2-binary
+toml
+pandas
