@@ -164,7 +164,9 @@ if not st.session_state.participant_info_done:
             "The format of response submission is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
             "You can either type your response or record it for each of the given colors. "
             "We encourage every participant to finish all the trials and provide names most of the colors appearing during the trials. " \
-            "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
+            "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open." \
+            "After reading the purpose of the experiment and the following terms, and if agree, you will be ask to provide: your, gender, your age, your current location of residency for the last year, your current residency for the last month, your first language of acquisition, and if applicable, your second and third language of acquisition." \
+            " You will be also ask to rate your fluency for each of the given languages you speak, your culture of identification and your different at which you make full use of those languages. "
             
         )
         st.subheader("Participation in the Project")
@@ -461,9 +463,9 @@ if st.session_state.paused:
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
-
+st.caption("You can press 'Pause ⏸️' to stop the experiment and resume later. ⚠️**CAUTION**: do NOT close the window, otherwise your progress will be lost. Thank you for your understanding.")
 if col1.button("Pause ⏸️"):
-  st.caption("You can press 'Pause ⏸️' to stop the experiment and resume later. **CAUTION**: do NOT close the window, otherwise your progress will be lost. Thank you for your understanding.")
+  
   st.session_state.paused = True
   timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
