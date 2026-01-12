@@ -1,12 +1,35 @@
 
 import streamlit as st
-import sqlite3
+import toml
 import random
 import time
 import pandas as pd
 import os
+from datetime import datetime 
+import psycopg2
+from supabase import create_client
+from io import BytesIO
+import tempfile
+import uuid
 
 
+
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+secrets_path = os.path.join(".streamlit", "secrets.toml")
+secrets = toml.load(secrets_path)
+
+POSTGRES = secrets["postgres"]
+
+def get_db_connection():
+    return psycopg2.connect(
+        host=POSTGRES["host"],
+        dbname=POSTGRES["dbname"],
+        user=POSTGRES["user"],
+        password=POSTGRES["password"],
+        port=POSTGRES["port"]
+    )
 
 st.markdown(
     """
@@ -23,6 +46,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 import random
 # Folder with stimuli
 
@@ -34,9 +58,14 @@ if "stimuli" not in st.session_state:
 if "trial_idx" not in st.session_state:
     st.session_state.trial_idx = 0
 
+if "rt" not in st.session_state:
+    st.session_state.rt = None 
+
 if "participant_info_done" not in st.session_state:
     st.session_state.participant_info_done = False
 
+if "trial_submitted" not in st.session_state:
+    st.session_state.trial_submitted = False
 if "paused" not in st.session_state:
     st.session_state.paused = False
 
@@ -60,6 +89,64 @@ if "age" not in st.session_state:
 
 if "country" not in st.session_state:
     st.session_state.country = None  # will be set by user
+    # --- Initialize participant info state ---
+if "lang1" not in st.session_state:
+    st.session_state.lang1 = ""
+if "lang2" not in st.session_state:
+    st.session_state.lang2 = ""
+if "lang3" not in st.session_state:
+    st.session_state.lang3 = ""
+
+if "contexts1" not in st.session_state:
+    st.session_state.contexts1 = ""
+if "contexts2" not in st.session_state:
+    st.session_state.contexts2 = ""
+if "contexts3" not in st.session_state:
+    st.session_state.contexts3 = ""
+
+if "contexts11" not in st.session_state:
+    st.session_state.contexts11 = ""
+if "contexts22" not in st.session_state:
+    st.session_state.contexts22 = ""
+if "contexts33" not in st.session_state:
+    st.session_state.contexts33 = ""
+if "culture1" not in st.session_state:
+    st.session_state.culture1 = ""
+if "culture2" not in st.session_state:
+    st.session_state.culture2 = ""
+if "culture3" not in st.session_state:
+    st.session_state.culture3 = ""
+defaults = {
+    # ratings (numbers)
+    "r1": None, "r2": None, "r3": None,
+    "culture_rate1": None, "culture_rate2": None, "culture_rate3": None,
+
+    # languages
+    "lang1": "", "lang2": "", "lang3": "",
+
+    # fluency ages
+    "fluency1": "", "fluency2": "", "fluency3": "",
+
+    # contexts
+    "contexts1": "", "contexts11": "", "contexts111": "",
+    "contexts_rating1": "", "contexts_rating11": "", "contexts_rating111": "",
+
+    # communication methods (multiselect)
+    "method_of_interpersonal_communication": [],
+
+    # cultures
+    "culture1": "", "culture2": "", "culture3": "",
+
+    # experiment control
+    "trial_idx": 0,
+    "start_time": None,
+    "trigger_rerun": False,
+}
+
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
 
 
 # Participant info page
@@ -71,13 +158,13 @@ if not st.session_state.participant_info_done:
         st.subheader("Please read thouroughlly the purpose, terms and condition of the experiment.")
         st.markdown(
             "We are the Color Diversity Lab team based in Japan, interested in studying various phenomena "
-            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of cultures and their **color categorization**." \
-            "Labels and names attributed to colors will precious data to get a glimpse of how a language and culture define concepts, beliefs and hierarchisation of color categories. " 
-            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown in total **300 trials** successively.Therefore in principle, **300 names** " \
-            "are expected to be collected per participant. " 
-            "The format of providing names is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
-            "You can either type your response or record it. "
-            "We encourage every participant to provide their effort into finishing the color naming task through **at least 80% of the trials.** " \
+            "related to the perception of colors. Our current experiment aims to build an ethnosemantic analysis of colors and compare their conceptual shape between languages. The study addresses the fundamental question: whethercolor categories are inherently inferred from the most saturated colors. " \
+            "Labels and names attributed to colors will be precious data to get a glimpse of how a language and culture define concepts, beliefs andd cognitive hierarchisation of color categories. " 
+            "In the experiment, you will be encouraged to give a name to a color that will be presented to you at each trial. You will be shown one colored square to name. Two addition options, on the left and right, will be given if you cannot find a name to categorize the color that appears."
+            "Therefore you will have three color options per trial, summed to 60 colors to names. " \
+            "The format of response submission is **free**, **not time constrained**, and you can be as much **descriptive or specific** as possible. "
+            "You can either type your response or record it for each of the given colors. "
+            "We encourage every participant to finish all the trials and provide names most of the colors appearing during the trials. " \
             "You are free to **pause** and **resume** later the experiment when feeling exhausted. None of your data will be lost if you remain the page open. "
             
         )
@@ -111,10 +198,12 @@ if not st.session_state.participant_info_done:
             "**Principal Investigator: Prof.Chihiro Hiramatsu** (Graduate School of Design, Kyushu University, Japan)  " \
             
             )
-        agree = st.checkbox("**I agree to the terms and conditions, and wave my rights to take participation to the study**")
-        Disagree= st.checkbox ("**I disagree to the terms and conditions and therefore want to leave.**")
+        
+        agree = ["**I confirm that I have read and understood the information above and agree to participate voluntarily in this study**","**I do not agree to the terms and conditions and wish to leave.**"]
+        st.session_state.consent=st.radio(f"if you have read the terms and conditions above:", agree)
 
-        if agree:
+
+        if st.session_state.consent==agree[0]:
             st.write("Great! Before proceeding please provide the following information. "
                      "They will not be disclosed to the public.")
 
@@ -125,64 +214,136 @@ if not st.session_state.participant_info_done:
 
             st.session_state.gender = st.radio("Gender", ["Male", "Female", "Other"])
 
-            age_list = [str(i) for i in range(0, 81)]
+            age_list = [str(i) for i in range(5, 150)]
             st.session_state.age = st.selectbox("Age", age_list)
-
+            education=["None","less than primary school","up to primary school","up high school","with some college years", "finished college or currently enrolled","with some graduate school", "finished my masters or currently enrolled in a Master course", "holding a PhD/M.D/J.D degree or currently enrolled"]
+            st.session_state.education = st.selectbox("Please provide your highest level of education if you have been to school. If you do not have any schooling experience, please select'None'", education)
             country_birth = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
             st.session_state.country_birth = st.selectbox("Country of birth)", country_birth)
             countries = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
-            st.session_state.countries = st.selectbox("Country of Residence (for at least a year)", countries)
+            st.session_state.countries = st.selectbox("Country of Residence (for the last year)", countries)
             countries2 = ["Russia", "Japan", "France", "United States", "Senegal", "Other"]
-            st.session_state.countries2 = st.selectbox("Country of Residence (for at least six months)", countries2)
+            st.session_state.countries2 = st.selectbox("Country of Residence (for the last six months)", countries2)
 
-            # Defining the variables
-            Language1 = ["Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            Language2 = ["None", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            Language3 = ["None", "Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
-            other = ["None", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish"]
+            years=[str(i) for i in range(1940, 2026)]
+            st.session_state.last_education = st.selectbox("When was the last time you went to school?", years)
+            yes_and_no=["Maybe","Yes","No I do not have any vision problem"]
+            st.session_state.vision = st.selectbox("Do you have any vision problems?", yes_and_no)
+            
+            langs = ["None", "Russian", "Japanese", "French", "English", "Chinese", "Wolof", "Spanish", ]
+            scores = [str(i) for i in range(1, 11)]
+            contexts= ["interacting with friends","interacting with family","reading","Watching TV","Listening to the radio/music","internet and social media","through social gatherings: parties, religious festivals, religious ceremonies, city events, national events"]
+            method_of_interpersonal_communication=["writting: through emails, with text chats, SMS, postal letters","orally: audio messages through voice notes, talking and oral speech"]
+            daily_use_frequency= ["daily","often in week","often in a month","not that often(less times within a year)","rarely","not anymore"]
+            
 
-            st.session_state.lang1 = st.selectbox("Language of Proficiency 1", Language1)
-            st.session_state.lang2 = st.selectbox("Language of Proficiency 2", Language2)
-            st.session_state.lang3 = st.selectbox("Language of Proficiency 3", Language3)
-            st.session_state.lang4 = st.selectbox("Language of Proficiency 4", other)
+        
 
-            if st.button("Submit Info"):
-                st.session_state.participant_info_done = True
-                st.rerun()
-    if Disagree:
-     st.title("Thank you for your attention!")
-     st.write("You may now close the browser.")
+            st.title("Linguistic Proficiency Assessment")
 
-    st.stop()
+            #Language of proficiency 1 and rating
+            with st.container(border=True):
+                st.selectbox("**Choose the dominant language you speak**", langs, index=0, key="lang1") 
+                st.radio(
+                f"**How confident are you in speaking the {st.session_state.lang1} language?**",
+                options=scores,
+                horizontal=True,
+                key="r1"
+                )
+                st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
+                age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
+                st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency1")
+
+         #contexts of use and rating for language 1
+                st.session_state.contexts1= st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_1")
+                st.session_state.contexts_rating1 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts1}**", daily_use_frequency, horizontal=True, index=0,key="contexts_1")
+                
+
+                st.session_state.contexts2= st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0,key="context_use_2")
+                st.session_state.contexts_rating2 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts2}**", daily_use_frequency, horizontal=True, index=0, key="contexts_2")
+
+                st.session_state.contexts3= st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0,key="context_use_3")
+                st.session_state.contexts_rating3 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts3}**", daily_use_frequency, horizontal=True, index=0,key="contexts_3")
+
+                st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication, key="com1")
 
 
 
-# Participant info page
-if not st.session_state.participant_info_done:
+         #Language of proficiency 2 and rating
+            with st.container(border=True):
+                st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang2") 
+                st.radio(
+                f"**How confident are you in speaking the {st.session_state.lang2} language?**",
+                options=scores,
+                horizontal=True,
+                key="r2"
+                )
+                st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
+                age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
+                st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency2")
+         #contexts of use and rating for language 2
+                st.session_state.contexts11= st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_11")
+                st.radio(f"How often do you speak that language in that context of {st.session_state.contexts11}", daily_use_frequency, horizontal=True, index=0,key="contexts_11")
 
-    left, center, right = st.columns([1, 40, 1])
-    with center:
-        st.title("Welcome to the Color Naming experiment!")
-        st.subheader("Please insert your information before starting.")
-        st.subheader("Thank you!")
+                st.session_state.contexts22= st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0,key="context_use_22")
+                st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts22}**", daily_use_frequency, horizontal=True, index=0, key="contexts_22")
 
-        st.markdown("### Participant Info")
-        st.write(f"Your Participant ID: **{st.session_state.participant_id}**")
+                st.session_state.contexts33= st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0,key="context_use_33")
+                st.session_state.contexts_rating33 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts33}**", daily_use_frequency, horizontal=True, index=0,key="contexts_33")
 
-        st.session_state.gender = st.radio("Gender", ["Male", "Female", "Other"])
+                st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com2")
+                
 
-        age_list = [str(i) for i in range(0, 81)]
-        st.session_state.age = st.selectbox("Age", age_list)
 
-        countries = ["Russia", "Japan", "France","United States", "Senegal", "Other"]
+                #Language of proficiency 3 and rating
+            with st.container(border=True):
+                st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang3") 
+                st.radio(
+                f"**How confident are you in speaking the {st.session_state.lang3} language?**",
+                options=scores,
+                horizontal=True,
+                key="r3"
+                )
+                st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
+                age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
+                st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency3")
+         #contexts of use and rating for language 3
+                st.session_state.contexts111 = st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_111")
+                st.session_state.contexts_rating111 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts111}**", daily_use_frequency, horizontal=True, index=0,key="contexts_111")
 
-        st.session_state.country = st.selectbox("Country", countries)
-        if st.button("Submit Info"):
+                st.session_state.contexts222 = st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0)
+                st.session_state.contexts_rating222 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts222}**", daily_use_frequency, horizontal=True, index=0, key="contexts_222")
+
+                st.session_state.contexts333 = st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0)
+                st.session_state.contexts_rating333 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts333}**", daily_use_frequency, horizontal=True, index=0,key="contexts_333")
+
+                st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com3")
+
+               ###CULTURES
+            with st.container(border=True):
+                cultures=["None","wolof","japanese","french","american","european","vietnamese","serere","Pular","Russian","lebou","canadian","I prefer to not tell"]
+                st.selectbox("**In which culture do you identify yourselft the most?**", cultures, index=0 ,key="culture1")
+                st.radio(f"**Please estimate how much you self-identify in {st.session_state.culture1} culture**", scores, horizontal=True, index=0,key="culture_rate1")
+
+                st.selectbox("**Any other culture?**", cultures, index=0 ,key="culture2")
+                st.radio(f"**Please estimate how much you self identify in {st.session_state.culture2} culture?**", scores, horizontal=True, index=0,key="culture_rate2")
+
+                st.selectbox("**Any other culture you have identified?**", cultures, index=0,key="culture3")
+                st.radio(f"**Please give an estimation here as well for {st.session_state.culture3} culture**", scores, horizontal=True, index=0,key="culture_rate3")
+            
+
+    if st.session_state.consent == agree[1]:
+           st.title("Thank you for your attention! You may now close the browser.")  
+           st.stop()
+        
+
+
+
+
+    if st.button("Submit Info"):
             st.session_state.participant_info_done = True
-            st.session_state.trigger_rerun = not st.session_state.get("trigger_rerun", False)
-
-    st.stop()  
-
+            st.session_state.trigger_rerun = not st.session_state.get("trigger_rerun", True)
+    st.stop()     
 
 
 # trial workflow for the end and layout of the stimuli and time
@@ -194,34 +355,19 @@ if st.session_state.participant_info_done:
     if trial >= len(st.session_state.stimuli):
 
         st.success("Experiment finished! Congratulations! Thank you for your precious participation.")
-        st.write(st.session_state.results)
-
-        df = pd.DataFrame(st.session_state.results)
-
-        # Add participant info columns at the end
-        df["participant_id"] = st.session_state.participant_id
-        df["gender"] = st.session_state.gender
-        df["age"] = st.session_state.age
-        df["rt"] = st.session_state.rt
-        df["Country of birth"] = st.session_state.country_birth
-        df["Country of Residence (for at least a year)"] = st.session_state.countries
-        df["Country of Residence (for at least six months)"] = st.session_state.countries2
-        df["Language of Proficiency 1"] = st.session_state.lang1
-        df["Language of Proficiency 2"] = st.session_state.lang2
-        df["Language of Proficiency 3"] = st.session_state.lang3
-        df["Other"] = st.session_state.lang4
-
-        st.dataframe(df)
-        df.to_csv("final_results.csv", index=True)
         st.balloons()
         st.stop()
 
     
 trial = st.session_state.trial_idx
+total_trials = len(st.session_state.stimuli)
+
+st.progress(trial / total_trials)
+st.subheader(f"Trial {trial + 1} of {total_trials}")
 if st.session_state.participant_info_done:
  st.markdown("""
 ### Instructions  
-Please look at the colored squqre appearing on your screen and provide a description or a name to it.
+Please look at the colored squares appearing on your screen and provide a description or a name to it.
 You can provide your responses in two ways: 
 -either typed at **Type your response here ⌨️📝** below the image.
 -or provide a recorded voice answer through **Record your voice here 🔊🎤**.
@@ -232,24 +378,79 @@ There is no wrong answer or right answer and we are looking forward to your crea
 Thank you for cooperation and enjoy the experiment!
 """)
 
+with st.expander("🔊 **Voiced Instructions**", expanded=True):
+    st.write("Click on the button 'Play' to release the voiced instructions.")
+    # Standard audio player for your custom instructions
+    st.audio("voiced_instructions.mp3", format="audio/mpeg")
+
 # Show the current image
 filename = st.session_state.stimuli[trial]
 img_path = os.path.join(stimuli_folder, filename)
-st.image(img_path, caption=f"Trial {trial+1}", use_container_width=True)
+image = filename
+participant_id = st.session_state.participant_id
+if "start_time" not in st.session_state or st.session_state.start_time is None:
+    st.session_state.start_time = time.time()
 
 
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# to save the results
-def save_trial_result(trial_idx, img_path, typed_color, rt, audio_input):
-    st.session_state.results.append({
-        "trial": trial_idx,
-        "image": img_path,
-        "typed_color": typed_color,
-        "rt": rt,
-        "audio_input": audio_input,
-    })
+def save_trial_to_supabase(
+    participant_id, trial, image, typed_color, rt, 
+    left_hex_code=None, left_color_name=None, 
+    right_hex_code=None, right_color_name=None,
+    gender=None, age=None, education=None, country_birth=None,
+    countries=None, countries2=None, last_education=None, vision=None,
+    lang1="", r1=None, fluency1="", contexts1="", contexts_rating1="",
+    lang2="", r2=None, fluency2="", contexts11="", contexts_rating11="",
+    lang3="", r3=None, fluency3="", contexts111="", contexts_rating111="",
+    method_of_interpersonal_communication=None, 
+    culture1="", culture_rate1=None,
+    culture2="", culture_rate2=None,
+    culture3="", culture_rate3=None
+          ):
+    if method_of_interpersonal_communication is None:
+        method_of_interpersonal_communication = []
 
+    conn = get_db_connection()
+    cur = conn.cursor()
 
+#   4 new columns here
+    
+    cur.execute("""
+        INSERT INTO responses (
+            participant_id, trial, image, typed_color, rt, 
+            left_hex, left_color_name, right_hex, right_color_name,
+            gender, age, education, country_birth, 
+            residence_last_year, residence_six_months, last_year_school, vision_issues,
+            lang1, r1, fluency1, contexts1, contexts_rating1,
+            lang2, r2, fluency2, contexts11, contexts_rating11,
+            lang3, r3, fluency3, contexts111, contexts_rating111,
+            method_of_interpersonal_communication,
+            culture1, culture_rate1, culture2, culture_rate2, culture3, culture_rate3
+        )
+        VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s
+        )
+    """, (
+        participant_id, trial, image, typed_color, rt,
+        left_hex_code, left_color_name, right_hex_code, right_color_name,
+        gender, age, education, country_birth, 
+        countries, countries2, last_education, vision,
+        lang1, r1, fluency1, contexts1, contexts_rating1,
+        lang2, r2, fluency2, contexts11, contexts_rating11,
+        lang3, r3, fluency3, contexts111, contexts_rating111,
+        method_of_interpersonal_communication,
+        culture1, culture_rate1, culture2, culture_rate2, culture3, culture_rate3
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+   
  # to pause the experiment
 if st.session_state.paused:
     st.subheader("Experiment paused")
@@ -259,85 +460,212 @@ if st.session_state.paused:
 
     # to make buttons
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 
 if col1.button("Pause ⏸️"):
-    st.session_state.paused = True
-#answer inputs style either writing or audio
-typed_color = st.text_input("Type your response here ⌨️📝", key=f"resp_{trial}", value="") 
-audio_value = st.audio_input("Record your voice here 🔊🎤 ", key=f"audio_{trial}", sample_rate=48000)
-if audio_value:
-    rt = time.time() - st.session_state.start_time
-
-if audio_value:
-    st.audio(audio_value)
+  st.caption("You can press 'Pause ⏸️' to stop the experiment and resume later. **CAUTION**: do NOT close the window, otherwise your progress will be lost. Thank you for your understanding.")
+  st.session_state.paused = True
+  timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 
-if st.session_state.start_time is None:
-    st.session_state.start_time = time.time()
-    rt = time.time() - st.session_state.start_time    
+# --- EXPERIMENT LAYOUT ---
+st.markdown("""
+    <style>
+        .color-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
+col_left, col_center, col_right = st.columns([2, 2, 2])
 
-if col2.button("Next⏭️"):
-    typed_color = st.session_state[f"resp_{trial}"]  # get current input
+with col_left:
+    with st.expander("⬅️**LEFT**", expanded=False):
+        l_hex = st.color_picker("", "#808080", key=f"foc_h_{trial}", label_visibility="collapsed")
+        # 2. The Large Preview Square
+        st.markdown(f'<div class="color-preview" style="background-color: {l_hex};"></div>', unsafe_allow_html=True)
+        left_text = st.text_input("Name Left", key=f"foc_n_{trial}", placeholder="Ex: Saturated Red")
+        left_audio = st.audio_input("Record the name🎤", key=f"left_a_{trial}")
 
-    if typed_color.strip() == "" and not audio_value:
-        st.error("Please enter a color name or record a voice input before continuing.")
+with col_center:
+    with st.container(border=True):
+      st.badge("Center")
+      st.caption("Please provide any name or description to the color. If you dont have any idea you can leave it blank and have another option by click on ⬅️**LEFT** or ⬅️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name")
+      filename = st.session_state.stimuli[trial]
+      img_path = os.path.join(stimuli_folder, filename)
+      st.image(img_path, use_container_width=True)
+    
+    # css to change dimension without children
+      st.markdown(
+        """
+        <style>
+            /* image from the center */
+            [data-testid="stImage"] img {
+                height: 200px !important;
+                width: auto !important;
+                object-fit: none;
+                border-radius: 10px;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+      typed_color = st.text_input("Name this image ⌨️📝", key=f"resp_{trial}")
+      audio_value = st.audio_input("Record the Name 🎤", key=f"center_a_{trial}")
+
+with col_right:
+     with st.expander("⬅️ **RIGHT**", expanded=False):
+        r_hex = st.color_picker("", "#808080", key=f"var_h_{trial}", label_visibility="collapsed")
+        # 2. The Large Preview Square
+        st.markdown(f'<div class="color-preview" style="background-color: {r_hex};"></div>', unsafe_allow_html=True)
+        right_text = st.text_input("Name Right", key=f"var_n_{trial}", placeholder="Ex: Light Red")
+        right_audio = st.audio_input("Record the Name 🎤", key=f"right_a_{trial}")
+
+# --- BUTTONS ---
+st.markdown("---")
+sub_col, next_col = st.columns(2)
+
+if sub_col.button("Submit Response ✅", use_container_width=True):
+    # --- DYNAMIC VALIDATION ---
+    # This checks if ANY of the 6 inputs are filled
+    has_text = any([
+        typed_color and typed_color.strip(), 
+        left_text and left_text.strip(), 
+        right_text and right_text.strip()
+    ])
+    has_audio = any([audio_value, left_audio, right_audio])
+
+    if not (has_text or has_audio):
+        st.error("Please provide at least one response (typed or recorded) in any section.")
     else:
+            rt = time.time() - st.session_state.start_time
+
+        # 1. UPLOAD CENTER STIMULUS AUDIO (Includes filename)
+    if audio_value is not None:
+            audio_bytes = audio_value.read()
+            if isinstance(audio_bytes, memoryview): audio_bytes = audio_bytes.tobytes()
+            if len(audio_bytes) > 0:
+                # Includes the stimulus image name
+                center_filename = f"center_{image}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+                    tmp_file.write(audio_bytes)
+                    tmp_path = tmp_file.name
+                supabase.storage.from_("center_color_audio").upload(center_filename, tmp_path, {"content-type": "audio/wav"})
+                os.remove(tmp_path)
+
+        # 2. UPLOAD LEFT FOCAL AUDIO (Includes Hex Code)
+    if left_audio is not None:
+            left_bytes = left_audio.read()
+            if isinstance(left_bytes, memoryview): left_bytes = left_bytes.tobytes()
+            if len(left_bytes) > 0:
+                # Removes '#' from hex for a safe filename
+                clean_l_hex = l_hex.lstrip('#')
+                left_audio_filename = f"left_{clean_l_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_left:
+                    tmp_left.write(left_bytes)
+                    l_tmp_path = tmp_left.name
+                supabase.storage.from_("left_color_audio").upload(left_audio_filename, l_tmp_path, {"content-type": "audio/wav"})
+                os.remove(l_tmp_path)
+
+        # 3. UPLOAD RIGHT VARIANT AUDIO (Includes Hex Code)
+    if right_audio is not None:
+            right_bytes = right_audio.read()
+            if isinstance(right_bytes, memoryview): right_bytes = right_bytes.tobytes()
+            if len(right_bytes) > 0:
+                clean_r_hex = r_hex.lstrip('#')
+                right_audio_filename = f"right_{clean_r_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_right:
+                    tmp_right.write(right_bytes)
+                    r_tmp_path = tmp_right.name
+                # Note: Fixed bucket name and variable path from your snippet
+                supabase.storage.from_("right_color_audio").upload(right_audio_filename, r_tmp_path, {"content-type": "audio/wav"})
+                os.remove(r_tmp_path)
+                    
+
+            # ---- save to database (Including new picker fields) ----
+            save_trial_to_supabase(
+                participant_id=st.session_state.participant_id,
+                trial=st.session_state.trial_idx,
+                image=filename, # Ensure 'filename' is defined in your trial loop----
+                typed_color=typed_color,
+                rt=rt,
+                left_hex_code=l_hex,       # The hex from left picker
+                left_color_name=left_text,  # The text from left input
+                right_hex_code=r_hex,      # The hex from right picker
+                right_color_name=right_text,# The text from right input
+                gender=st.session_state.gender,
+                age=st.session_state.age,
+                education=st.session_state.education,
+                country_birth=st.session_state.country_birth,
+                countries=st.session_state.countries,
+                countries2=st.session_state.countries2,
+                last_education=st.session_state.last_education,
+                vision=st.session_state.vision, 
+                lang1=st.session_state.lang1,
+                r1=st.session_state.r1,
+                fluency1=st.session_state.fluency1,
+                contexts1=st.session_state.contexts1,
+                contexts_rating1=st.session_state.contexts_rating1,
+                lang2=st.session_state.lang2,
+                r2=st.session_state.r2,
+                fluency2=st.session_state.fluency2,
+                contexts11=st.session_state.contexts11,
+                contexts_rating11=st.session_state.contexts_rating11,
+                lang3=st.session_state.lang3,
+                r3=st.session_state.r3,
+                fluency3=st.session_state.fluency3,
+                contexts111=st.session_state.contexts111,
+                contexts_rating111=st.session_state.contexts_rating111,
+                method_of_interpersonal_communication=st.session_state.method_of_interpersonal_communication,
+                culture1=st.session_state.culture1,
+                culture_rate1=st.session_state.culture_rate1,
+                culture2=st.session_state.culture2,
+                culture_rate2=st.session_state.culture_rate2,
+                culture3=st.session_state.culture3,
+                culture_rate3=st.session_state.culture_rate3,
+            )
         
-        save_trial_result(
-            trial_idx=trial,
-            img_path=img_path,
-            typed_color=typed_color.lower() if typed_color else None,
-            rt=rt,
-            audio_input=audio_value,
-        )
-        st.session_state.trial_idx += 1
-        st.session_state.trigger_rerun = not st.session_state.get("trigger_rerun", False)
-if col4.button ("voiced instructions 🗣️"):
-  st.audio("cat-purr.mp3", format="audio/mpeg", loop=True)
+    st.session_state.trial_submitted = True
          
-if col3.button("✅ End"):
+    st.rerun()
 
-    # Save last trial result
-    save_trial_result(
-        trial_idx=trial,
-        img_path=img_path,
-        typed_color=typed_color.lower() if typed_color else None,
-        rt=rt,
-        audio_input=audio_value,
-    )
+#SUCCESS FEEDBACK
+if st.session_state.get("trial_submitted"):
+    st.success("✅ Your response has been submitted!")
+    st.info("Please click 'Next Trial ⏭️' to proceed.")
 
-    df = pd.DataFrame(st.session_state.results)
+# NEXT TRIAL BUTTON 
+if next_col.button("Next Trial ⏭️", use_container_width=True):
+    if st.session_state.get("trial_submitted"):
+        st.session_state.trial_idx += 1
+        st.session_state.trial_submitted = False
+        st.session_state.start_time = None
+        st.rerun()
+    else:
+        st.warning("Please Submit first.")
+ 
 
-    # Add participant metadata
-    df["participant_id"] = st.session_state.participant_id
-    df["gender"] = st.session_state.gender
-    df["age"] = st.session_state.age
-    df["Country of birth"] = st.session_state.country_birth
-    df["Country of Residence (for at least a year)"] = st.session_state.countries
-    df["Country of Residence (for at least six months)"] = st.session_state.countries2
-    df["Language of Proficiency 1"] = st.session_state.lang1
-    df["Language of Proficiency 2"] = st.session_state.lang2
-    df["Language of Proficiency 3"] = st.session_state.lang3
-    df["Other"] = st.session_state.lang4
 
-    df.to_csv("final_results.csv", index=True)
 
-    st.session_state.end = True
 
-    st.title("You ended the experiment.")
-    st.write(
-        "Thank you for your interest in participating in our experiment. "
-        "You may now safely close the browser. "
-        "Do not hesitate to retake the test if you change your mind.\n\n"
-        "You can preview your responses below.\n"
-        "Kind regards."
-    )
+     
+ 
+ 
 
-    st.dataframe(df)
+         
 
-    st.stop()
+
+
 
 
