@@ -17,10 +17,9 @@ import uuid
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-secrets_path = os.path.join(".streamlit", "secrets.toml")
-secrets = toml.load(secrets_path)
+POSTGRES = st.secrets["postgres"]
 
-POSTGRES = secrets["postgres"]
+
 
 def get_db_connection():
     return psycopg2.connect(
