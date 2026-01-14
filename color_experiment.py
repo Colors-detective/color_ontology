@@ -382,7 +382,7 @@ Thank you for cooperation and enjoy the experiment!
 with st.expander("🔊 **Voiced Instructions**", expanded=True):
     st.write("Click on the button 'Play' to release the voiced instructions.")
     # Standard audio player for your custom instructions
-    st.audio("voiced_instructions.mp3", format="audio/mpeg")
+    st.audio("Voiced_instructions.mp3", format="audio/mpeg")
 
 with st.expander("**Ranking guide**🏆",expanded= True):
     st.write("""Rank according to what you feel is the most typical color.**Please, remember that there is no bad answer**"
