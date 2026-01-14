@@ -363,8 +363,7 @@ if st.session_state.participant_info_done:
 trial = st.session_state.trial_idx
 total_trials = len(st.session_state.stimuli)
 
-st.progress(trial / total_trials)
-st.subheader(f"Trial {trial + 1} of {total_trials}")
+
 if st.session_state.participant_info_done:
  st.markdown("""
 ### Instructions  
@@ -372,9 +371,10 @@ Please look at the colored squares appearing on your screen and provide a descri
 You can provide your responses in two ways: 
 -either typed at **Type your response here ⌨️📝** below the image.
 -or provide a recorded voice answer through **Record your voice here 🔊🎤**.
- We strongly encourage you to maintain consistency through all the trials using only **ONE input** of response.
-For instance, after choosing to type your answer or record it at **Trial 1**, it is expected that you apply the same choice of response input for all the following trials.".  
-Click on **Next⏭️** to move to the following stimulus.  
+ We strongly encourage you to maintain consistency through all the trials using only **ONE input** of response."Please provide any name or description to the color. If you do not have any idea on how to name the color, you can leave it blank. 
+ There are other options on the  on ⬅️**LEFT** or ➡️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name"
+However, after choosing to submit one type of answer (text or audio), it is expected that you apply the same choice of response input for all the following trials. For example, if at Trial1, you recorded your answer for the color, please apply the same for all the other trials as well.  
+Once you have selected and filled your answers, you can click on '**Submit Response ✅**' before moving to the next trial on '**Next⏭️**'button .  
 There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible.
 Thank you for cooperation and enjoy the experiment!
 """)
@@ -383,6 +383,17 @@ with st.expander("🔊 **Voiced Instructions**", expanded=True):
     st.write("Click on the button 'Play' to release the voiced instructions.")
     # Standard audio player for your custom instructions
     st.audio("voiced_instructions.mp3", format="audio/mpeg")
+
+with st.expander("**Ranking guide**🏆",expanded= True):
+    st.write("""Rank according to what you feel is the most typical color.**Please, remember that there is no bad answer**"
+    "- **1=Best**: The most typical and representative of the category."
+    "- **2=Good**: Quite close to typical, but not totally."
+    "- **3=Alternative**: Could be typical or not."
+    "- **0=Indifferent**: No ranking or preference."
+    """)
+
+st.progress(trial / total_trials)
+st.subheader(f"Trial {trial + 1} of {total_trials}")
 
 # Show the current image
 filename = st.session_state.stimuli[trial]
@@ -399,6 +410,7 @@ def save_trial_to_supabase(
     participant_id, trial, image, typed_color, rt, 
     left_hex_code=None, left_color_name=None, 
     right_hex_code=None, right_color_name=None,
+    left_rank=None, center_rank=None, right_rank=None,
     gender=None, age=None, education=None, country_birth=None,
     countries=None, countries2=None, last_education=None, vision=None,
     lang1="", r1=None, fluency1="", contexts1="", contexts_rating1="",
@@ -420,7 +432,8 @@ def save_trial_to_supabase(
     cur.execute("""
         INSERT INTO responses (
             participant_id, trial, image, typed_color, rt, 
-            left_hex, left_color_name, right_hex, right_color_name,
+            left_hex_code, left_color_name, right_hex_code, right_color_name,
+            left_rank, center_rank, right_rank,
             gender, age, education, country_birth, 
             residence_last_year, residence_six_months, last_year_school, vision_issues,
             lang1, r1, fluency1, contexts1, contexts_rating1,
@@ -431,7 +444,7 @@ def save_trial_to_supabase(
         )
         VALUES (
             %s, %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s
@@ -439,6 +452,7 @@ def save_trial_to_supabase(
     """, (
         participant_id, trial, image, typed_color, rt,
         left_hex_code, left_color_name, right_hex_code, right_color_name,
+        left_rank, center_rank, right_rank,
         gender, age, education, country_birth, 
         countries, countries2, last_education, vision,
         lang1, r1, fluency1, contexts1, contexts_rating1,
@@ -463,11 +477,20 @@ if st.session_state.paused:
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
-st.caption("You can press 'Pause ⏸️' to stop the experiment and resume later. ⚠️**CAUTION**: do NOT close the window, otherwise your progress will be lost. Thank you for your understanding.")
-if col1.button("Pause ⏸️"):
-  
-  st.session_state.paused = True
-  timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+with st.expander(" Click here to Pause ⏸️"):
+    st.write("⚠️**CAUTION** You can press 'Pause ⏸️' to stop and resume later. However, you need to remain your window open, otherwise your progress will be lost.")
+    
+    # Toggle button: If paused, show 'Resume'; if not, show 'Pause'
+    if not st.session_state.paused:
+        if st.button("Pause ⏸️"):
+            st.session_state.paused = True
+            st.rerun()
+    else:
+        if st.button("Resume ▶️"):
+            st.session_state.paused = False
+            # Reset start_time so the pause duration isn't counted in RT
+            st.session_state.start_time = time.time() 
+            st.rerun()
 
 
 # --- EXPERIMENT LAYOUT ---
@@ -491,21 +514,28 @@ st.markdown("""
 
 col_left, col_center, col_right = st.columns([2, 2, 2])
 
+rank_options = ["0", "1", "2", "3"]
 with col_left:
     with st.expander("⬅️**LEFT**", expanded=False):
         l_hex = st.color_picker("", "#808080", key=f"foc_h_{trial}", label_visibility="collapsed")
         # 2. The Large Preview Square
         st.markdown(f'<div class="color-preview" style="background-color: {l_hex};"></div>', unsafe_allow_html=True)
-        left_text = st.text_input("Name Left", key=f"foc_n_{trial}", placeholder="Ex: Saturated Red")
-        left_audio = st.audio_input("Record the name🎤", key=f"left_a_{trial}")
+        left_text = st.text_input("Type your response here ⌨️📝", key=f"foc_n_{trial}", placeholder="Ex: Saturated Red")
+        left_audio = st.audio_input("Record your answer here🎤", key=f"left_a_{trial}")
+        # NEW: Ranking for Left
+        
+        left_rank = st.selectbox("Rank", rank_options, key=f"rank_l_{trial}")
+        
 
 with col_center:
     with st.container(border=True):
-      st.badge("Center")
-      st.caption("Please provide any name or description to the color. If you dont have any idea you can leave it blank and have another option by click on ⬅️**LEFT** or ⬅️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name")
+      
       filename = st.session_state.stimuli[trial]
       img_path = os.path.join(stimuli_folder, filename)
       st.image(img_path, use_container_width=True)
+      
+
+      
     
     # css to change dimension without children
       st.markdown(
@@ -522,17 +552,19 @@ with col_center:
         """,
         unsafe_allow_html=True
     )
-      typed_color = st.text_input("Name this image ⌨️📝", key=f"resp_{trial}")
-      audio_value = st.audio_input("Record the Name 🎤", key=f"center_a_{trial}")
+      typed_color = st.text_input("Type your response here ⌨️📝", key=f"resp_{trial}")
+      audio_value = st.audio_input("Record your answer here🎤", key=f"center_a_{trial}")
+      center_rank = st.selectbox("Rank", rank_options, key=f"rank_c_{trial}")
 
 with col_right:
-     with st.expander("⬅️ **RIGHT**", expanded=False):
+     with st.expander("➡️ **RIGHT**", expanded=False):
         r_hex = st.color_picker("", "#808080", key=f"var_h_{trial}", label_visibility="collapsed")
         # 2. The Large Preview Square
         st.markdown(f'<div class="color-preview" style="background-color: {r_hex};"></div>', unsafe_allow_html=True)
-        right_text = st.text_input("Name Right", key=f"var_n_{trial}", placeholder="Ex: Light Red")
-        right_audio = st.audio_input("Record the Name 🎤", key=f"right_a_{trial}")
-
+        right_text = st.text_input("Type your response here ⌨️📝", key=f"var_n_{trial}", placeholder="Ex: Light Red")
+        right_audio = st.audio_input("Record your answer here🎤", key=f"right_a_{trial}")
+        right_rank = st.selectbox("Rank", rank_options, key=f"rank_r_{trial}")
+        
 # --- BUTTONS ---
 st.markdown("---")
 sub_col, next_col = st.columns(2)
@@ -604,7 +636,10 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
                 left_hex_code=l_hex,       # The hex from left picker
                 left_color_name=left_text,  # The text from left input
                 right_hex_code=r_hex,      # The hex from right picker
-                right_color_name=right_text,# The text from right input
+                right_color_name=right_text,
+                left_rank=left_rank,
+                center_rank=center_rank,
+                right_rank=right_rank, # The text from right input
                 gender=st.session_state.gender,
                 age=st.session_state.age,
                 education=st.session_state.education,
