@@ -493,38 +493,38 @@ with st.expander(" Click here to Pause ⏸️"):
             st.rerun()
 
 
-# --- EXPERIMENT LAYOUT ---
-st.markdown("""
-    <style>
-        .color-preview {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            border: none;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px black;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# Layou screen
+# st.markdown("""
+#     <style>
+#         .color-preview {
+#             width: 100%;
+#             height: 200px;
+#             border-radius: 10px;
+#             border: none;
+#             margin-bottom: 10px;
+#             display: flex;
+#             align-items: center;
+#             justify-content: center;
+#             color: white;
+#             font-weight: bold;
+#             text-shadow: 1px 1px 2px black;
+#         }
+#     </style>
+# """, unsafe_allow_html=True)
 
 col_left, col_center, col_right = st.columns([2, 2, 2])
 
-rank_options = ["0", "1", "2", "3"]
-with col_left:
-    with st.expander("⬅️**LEFT**", expanded=False):
-        l_hex = st.color_picker("", "#808080", key=f"foc_h_{trial}", label_visibility="collapsed")
-        # 2. The Large Preview Square
-        st.markdown(f'<div class="color-preview" style="background-color: {l_hex};"></div>', unsafe_allow_html=True)
-        left_text = st.text_input("Type your response here ⌨️📝", key=f"foc_n_{trial}", placeholder="Ex: Saturated Red")
-        left_audio = st.audio_input("Record your answer here🎤", key=f"left_a_{trial}")
-        # NEW: Ranking for Left
+# rank_options = ["0", "1", "2", "3"]
+# with col_left:
+#     with st.expander("⬅️**LEFT**", expanded=False):
+#         l_hex = st.color_picker("", "#808080", key=f"foc_h_{trial}", label_visibility="collapsed")
+#         # 2. The Large Preview Square
+#         st.markdown(f'<div class="color-preview" style="background-color: {l_hex};"></div>', unsafe_allow_html=True)
+#         left_text = st.text_input("Type your response here ⌨️📝", key=f"foc_n_{trial}", placeholder="Ex: Saturated Red")
+#         left_audio = st.audio_input("Record your answer here🎤", key=f"left_a_{trial}")
+#         # NEW: Ranking for Left
         
-        left_rank = st.selectbox("Rank", rank_options, key=f"rank_l_{trial}")
+#         left_rank = st.selectbox("Rank", rank_options, key=f"rank_l_{trial}")
         
 
 with col_center:
@@ -556,33 +556,35 @@ with col_center:
       audio_value = st.audio_input("Record your answer here🎤", key=f"center_a_{trial}")
       center_rank = st.selectbox("Rank", rank_options, key=f"rank_c_{trial}")
 
-with col_right:
-     with st.expander("➡️ **RIGHT**", expanded=False):
-        r_hex = st.color_picker("", "#808080", key=f"var_h_{trial}", label_visibility="collapsed")
-        # 2. The Large Preview Square
-        st.markdown(f'<div class="color-preview" style="background-color: {r_hex};"></div>', unsafe_allow_html=True)
-        right_text = st.text_input("Type your response here ⌨️📝", key=f"var_n_{trial}", placeholder="Ex: Light Red")
-        right_audio = st.audio_input("Record your answer here🎤", key=f"right_a_{trial}")
-        right_rank = st.selectbox("Rank", rank_options, key=f"rank_r_{trial}")
+# with col_right:
+#      with st.expander("➡️ **RIGHT**", expanded=False):
+#         r_hex = st.color_picker("", "#808080", key=f"var_h_{trial}", label_visibility="collapsed")
+#         # 2. The Large Preview Square
+#         st.markdown(f'<div class="color-preview" style="background-color: {r_hex};"></div>', unsafe_allow_html=True)
+#         right_text = st.text_input("Type your response here ⌨️📝", key=f"var_n_{trial}", placeholder="Ex: Light Red")
+#         right_audio = st.audio_input("Record your answer here🎤", key=f"right_a_{trial}")
+#         right_rank = st.selectbox("Rank", rank_options, key=f"rank_r_{trial}")
         
 # --- BUTTONS ---
 st.markdown("---")
 sub_col, next_col = st.columns(2)
 
 if sub_col.button("Submit Response ✅", use_container_width=True):
-    # --- DYNAMIC VALIDATION ---
-    # This checks if ANY of the 6 inputs are filled
-    has_text = any([
-        typed_color and typed_color.strip(), 
-        left_text and left_text.strip(), 
-        right_text and right_text.strip()
-    ])
-    has_audio = any([audio_value, left_audio, right_audio])
+    # # --- DYNAMIC VALIDATION ---
+    # # This checks if ANY of the 6 inputs are filled
+    # has_text = any([
+    #     typed_color and typed_color.strip(), 
+    #     left_text and left_text.strip(), 
+    #     right_text and right_text.strip()
+    # ])
+    # has_audio = any([audio_value, left_audio, right_audio])
 
-    if not (has_text or has_audio):
-        st.error("Please provide at least one response (typed or recorded) in any section.")
-    else:
-            rt = time.time() - st.session_state.start_time
+    # if not (has_text or has_audio):
+    #     st.error("Please provide at least one response (typed or recorded) in any section.")
+    # else:
+    has_text = bool(typed_color and typed_color.strip())
+    has_audio = bool(audio_value)
+    rt = time.time() - st.session_state.start_time
 
         # 1. UPLOAD CENTER STIMULUS AUDIO (Includes filename)
     if audio_value is not None:
@@ -598,32 +600,32 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
                 os.remove(tmp_path)
 
         # 2. UPLOAD LEFT FOCAL AUDIO (Includes Hex Code)
-    if left_audio is not None:
-            left_bytes = left_audio.read()
-            if isinstance(left_bytes, memoryview): left_bytes = left_bytes.tobytes()
-            if len(left_bytes) > 0:
-                # Removes '#' from hex for a safe filename
-                clean_l_hex = l_hex.lstrip('#')
-                left_audio_filename = f"left_{clean_l_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_left:
-                    tmp_left.write(left_bytes)
-                    l_tmp_path = tmp_left.name
-                supabase.storage.from_("left_color_audio").upload(left_audio_filename, l_tmp_path, {"content-type": "audio/wav"})
-                os.remove(l_tmp_path)
+    # if left_audio is not None:
+    #         left_bytes = left_audio.read()
+    #         if isinstance(left_bytes, memoryview): left_bytes = left_bytes.tobytes()
+    #         if len(left_bytes) > 0:
+    #             # Removes '#' from hex for a safe filename
+    #             clean_l_hex = l_hex.lstrip('#')
+    #             left_audio_filename = f"left_{clean_l_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
+    #             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_left:
+    #                 tmp_left.write(left_bytes)
+    #                 l_tmp_path = tmp_left.name
+    #             supabase.storage.from_("left_color_audio").upload(left_audio_filename, l_tmp_path, {"content-type": "audio/wav"})
+    #             os.remove(l_tmp_path)
 
-        # 3. UPLOAD RIGHT VARIANT AUDIO (Includes Hex Code)
-    if right_audio is not None:
-            right_bytes = right_audio.read()
-            if isinstance(right_bytes, memoryview): right_bytes = right_bytes.tobytes()
-            if len(right_bytes) > 0:
-                clean_r_hex = r_hex.lstrip('#')
-                right_audio_filename = f"right_{clean_r_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_right:
-                    tmp_right.write(right_bytes)
-                    r_tmp_path = tmp_right.name
-                # Note: Fixed bucket name and variable path from your snippet
-                supabase.storage.from_("right_color_audio").upload(right_audio_filename, r_tmp_path, {"content-type": "audio/wav"})
-                os.remove(r_tmp_path)
+    #     # 3. UPLOAD RIGHT VARIANT AUDIO (Includes Hex Code)
+    # if right_audio is not None:
+    #         right_bytes = right_audio.read()
+    #         if isinstance(right_bytes, memoryview): right_bytes = right_bytes.tobytes()
+    #         if len(right_bytes) > 0:
+    #             clean_r_hex = r_hex.lstrip('#')
+    #             right_audio_filename = f"right_{clean_r_hex}_part_{st.session_state.participant_id}_trial_{st.session_state.trial_idx}_{uuid.uuid4().hex}.wav"
+    #             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_right:
+    #                 tmp_right.write(right_bytes)
+    #                 r_tmp_path = tmp_right.name
+    #             # Note: Fixed bucket name and variable path from your snippet
+    #             supabase.storage.from_("right_color_audio").upload(right_audio_filename, r_tmp_path, {"content-type": "audio/wav"})
+    #             os.remove(r_tmp_path)
                     
 
             # ---- save to database (Including new picker fields) ----
