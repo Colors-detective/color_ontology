@@ -512,7 +512,7 @@ with st.expander(" Click here to Pause ⏸️"):
 #     </style>
 # """, unsafe_allow_html=True)
 
-col_left, col_center, col_right = st.columns([2, 2, 2])
+col_center= st.columns([0, 4, ]) #col_left, col_center, col_right = st.columns([2, 2, 2])
 
 # rank_options = ["0", "1", "2", "3"]
 # with col_left:
@@ -537,24 +537,24 @@ with col_center:
 
       
     
-    # css to change dimension without children
-      st.markdown(
-        """
-        <style>
-            /* image from the center */
-            [data-testid="stImage"] img {
-                height: 200px !important;
-                width: auto !important;
-                object-fit: none;
-                border-radius: 10px;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    # # css to change dimension without children
+    #   st.markdown(
+    #     """
+    #     <style>
+    #         /* image from the center */
+    #         [data-testid="stImage"] img {
+    #             height: 200px !important;
+    #             width: auto !important;
+    #             object-fit: none;
+    #             border-radius: 10px;
+    #         }
+    #     </style>
+    #     """,
+    #     unsafe_allow_html=True
+    # )
       typed_color = st.text_input("Type your response here ⌨️📝", key=f"resp_{trial}")
       audio_value = st.audio_input("Record your answer here🎤", key=f"center_a_{trial}")
-      center_rank = st.selectbox("Rank", rank_options, key=f"rank_c_{trial}")
+    #   center_rank = st.selectbox("Rank", rank_options, key=f"rank_c_{trial}")
 
 # with col_right:
 #      with st.expander("➡️ **RIGHT**", expanded=False):
@@ -635,13 +635,13 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
                 image=filename, # Ensure 'filename' is defined in your trial loop----
                 typed_color=typed_color,
                 rt=rt,
-                left_hex_code=l_hex,       # The hex from left picker
-                left_color_name=left_text,  # The text from left input
-                right_hex_code=r_hex,      # The hex from right picker
-                right_color_name=right_text,
-                left_rank=left_rank,
-                center_rank=center_rank,
-                right_rank=right_rank, # The text from right input
+                # left_hex_code=l_hex,       # The hex from left picker
+                # left_color_name=left_text,  # The text from left input
+                # right_hex_code=r_hex,      # The hex from right picker
+                # right_color_name=right_text,
+                # left_rank=left_rank,
+                # center_rank=center_rank,
+                # right_rank=right_rank, # The text from right input
                 gender=st.session_state.gender,
                 age=st.session_state.age,
                 education=st.session_state.education,
