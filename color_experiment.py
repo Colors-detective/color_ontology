@@ -512,7 +512,7 @@ with st.expander(" Click here to Pause ⏸️"):
 #     </style>
 # """, unsafe_allow_html=True)
 
-col_center= st.columns([0, 4,0]) #col_left, col_center, col_right = st.columns([2, 2, 2])
+_, col_center, _ = st.columns([1, 4, 1]) #col_left, col_center, col_right = st.columns([2, 2, 2])
 
 # rank_options = ["0", "1", "2", "3"]
 # with col_left:
