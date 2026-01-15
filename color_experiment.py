@@ -384,13 +384,13 @@ with st.expander("🔊 **Voiced Instructions**", expanded=True):
     # Standard audio player for your custom instructions
     st.audio("Voiced_instructions.mp3", format="audio/mpeg")
 
-with st.expander("**Ranking guide**🏆",expanded= True):
-    st.write("""Rank according to what you feel is the most typical color.**Please, remember that there is no bad answer**"
-    "- **1=Best**: The most typical and representative of the category."
-    "- **2=Good**: Quite close to typical, but not totally."
-    "- **3=Alternative**: Could be typical or not."
-    "- **0=Indifferent**: No ranking or preference."
-    """)
+# with st.expander("**Ranking guide**🏆",expanded= True):
+#     st.write("""Rank according to what you feel is the most typical color.**Please, remember that there is no bad answer**"
+#     "- **1=Best**: The most typical and representative of the category."
+#     "- **2=Good**: Quite close to typical, but not totally."
+#     "- **3=Alternative**: Could be typical or not."
+#     "- **0=Indifferent**: No ranking or preference."
+#     """)
 
 st.progress(trial / total_trials)
 st.subheader(f"Trial {trial + 1} of {total_trials}")
@@ -475,7 +475,7 @@ if st.session_state.paused:
 
     # to make buttons
 
-col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3  = st.columns(3)  #col1, col2, col3 #, col4, col5 = st.columns(5)
 
 with st.expander(" Click here to Pause ⏸️"):
     st.write("⚠️**CAUTION** You can press 'Pause ⏸️' to stop and resume later. However, you need to remain your window open, otherwise your progress will be lost.")
@@ -512,7 +512,7 @@ with st.expander(" Click here to Pause ⏸️"):
 #     </style>
 # """, unsafe_allow_html=True)
 
-col_center= st.columns([0, 4, ]) #col_left, col_center, col_right = st.columns([2, 2, 2])
+col_center= st.columns([0, 4,0]) #col_left, col_center, col_right = st.columns([2, 2, 2])
 
 # rank_options = ["0", "1", "2", "3"]
 # with col_left:
