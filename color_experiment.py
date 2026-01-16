@@ -367,18 +367,18 @@ total_trials = len(st.session_state.stimuli)
 if st.session_state.participant_info_done:
  st.markdown("""
 ### Instructions  
-Please look at the colored squares appearing on your screen and provide a description or a name to it.
+Please look at the colored square appearing on your screen and provide a description or a name to it. You can be as specific as possible either providing a single term (e.g Dog, cat, orange), multiple inputs terms (e.g. I walk the dog at 8am. The sun is red; red-orange-strawberry) or a paragraph.
 You can provide your responses in two ways: 
 -either typed at **Type your response here ⌨️📝** below the image.
 -or provide a recorded voice answer through **Record your voice here 🔊🎤**.
  We strongly encourage you to maintain consistency through all the trials using only **ONE input** of response."Please provide any name or description to the color. If you do not have any idea on how to name the color, you can leave it blank. 
- There are other options on the  on ⬅️**LEFT** or ➡️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name"
+ 
 However, after choosing to submit one type of answer (text or audio), it is expected that you apply the same choice of response input for all the following trials. For example, if at Trial1, you recorded your answer for the color, please apply the same for all the other trials as well.  
 Once you have selected and filled your answers, you can click on '**Submit Response ✅**' before moving to the next trial on '**Next⏭️**'button .  
 There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible.
 Thank you for cooperation and enjoy the experiment!
 """)
-
+#There are other options on the  on ⬅️**LEFT** or ➡️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name"
 with st.expander("🔊 **Voiced Instructions**", expanded=True):
     st.write("Click on the button 'Play' to release the voiced instructions.")
     # Standard audio player for your custom instructions
