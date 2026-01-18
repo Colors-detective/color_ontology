@@ -12,12 +12,12 @@ import tempfile
 import uuid
 
 
+secrets = toml.load(".streamlit/secrets_bi.toml")
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 POSTGRES = st.secrets["postgres"]
-secrets = toml.load(".streamlit/secrets_bi.toml")
 
 
 
