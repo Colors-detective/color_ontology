@@ -1,4 +1,3 @@
-
 import streamlit as st
 import toml
 import random
@@ -18,6 +17,7 @@ SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 POSTGRES = st.secrets["postgres"]
+secrets = toml.load(".streamlit/secrets_bi.toml")
 
 
 
@@ -55,7 +55,15 @@ stimuli_folder = os.path.join(os.path.dirname(__file__), "stimuli")
 if "stimuli" not in st.session_state:
     st.session_state.stimuli = sorted(os.listdir(stimuli_folder))
 
-    
+
+if "phase" not in st.session_state:
+    st.session_state.phase = 1
+
+if "language_order" not in st.session_state:
+    if random.random() < 0.5:
+        st.session_state.language_order = ["EN", "FR"]
+    else:
+        st.session_state.language_order = ["FR", "EN"]   
 
 if "trial_idx" not in st.session_state:
     st.session_state.trial_idx = 0
@@ -94,24 +102,27 @@ if "country" not in st.session_state:
     # --- Initialize participant info state ---
 if "lang1" not in st.session_state:
     st.session_state.lang1 = ""
-# if "lang2" not in st.session_state:
-#     st.session_state.lang2 = ""
-# if "lang3" not in st.session_state:
-#     st.session_state.lang3 = ""
+if "lang2" not in st.session_state:
+    st.session_state.lang2 = ""
+if "lang3" not in st.session_state:
+    st.session_state.lang3 = ""
+
+if "input_method" not in st.session_state:
+    st.session_state.input_method = None 
 
 if "contexts1" not in st.session_state:
     st.session_state.contexts1 = ""
 if "contexts2" not in st.session_state:
-     st.session_state.contexts2 = ""
+    st.session_state.contexts2 = ""
 if "contexts3" not in st.session_state:
-     st.session_state.contexts3 = ""
+    st.session_state.contexts3 = ""
 
-# if "contexts11" not in st.session_state:
-#     st.session_state.contexts11 = ""
-# if "contexts22" not in st.session_state:
-#     st.session_state.contexts22 = ""
-# if "contexts33" not in st.session_state:
-#     st.session_state.contexts33 = ""
+if "contexts11" not in st.session_state:
+    st.session_state.contexts11 = ""
+if "contexts22" not in st.session_state:
+    st.session_state.contexts22 = ""
+if "contexts33" not in st.session_state:
+    st.session_state.contexts33 = ""
 if "culture1" not in st.session_state:
     st.session_state.culture1 = ""
 if "culture2" not in st.session_state:
@@ -273,55 +284,55 @@ if not st.session_state.participant_info_done:
 
 
 
-        #  #Language of proficiency 2 and rating
-        #     with st.container(border=True):
-        #         st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang2") 
-        #         st.radio(
-        #         f"**How confident are you in speaking the {st.session_state.lang2} language?**",
-        #         options=scores,
-        #         horizontal=True,
-        #         key="r2"
-        #         )
-        #         st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
-        #         age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
-        #         st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency2")
-        #  #contexts of use and rating for language 2
-        #         st.session_state.contexts11= st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_11")
-        #         st.radio(f"How often do you speak that language in that context of {st.session_state.contexts11}", daily_use_frequency, horizontal=True, index=0,key="contexts_11")
+         #Language of proficiency 2 and rating
+            with st.container(border=True):
+                st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang2") 
+                st.radio(
+                f"**How confident are you in speaking the {st.session_state.lang2} language?**",
+                options=scores,
+                horizontal=True,
+                key="r2"
+                )
+                st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
+                age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
+                st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency2")
+         #contexts of use and rating for language 2
+                st.session_state.contexts11= st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_11")
+                st.radio(f"How often do you speak that language in that context of {st.session_state.contexts11}", daily_use_frequency, horizontal=True, index=0,key="contexts_11")
 
-        #         st.session_state.contexts22= st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0,key="context_use_22")
-        #         st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts22}**", daily_use_frequency, horizontal=True, index=0, key="contexts_22")
+                st.session_state.contexts22= st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0,key="context_use_22")
+                st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts22}**", daily_use_frequency, horizontal=True, index=0, key="contexts_22")
 
-        #         st.session_state.contexts33= st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0,key="context_use_33")
-        #         st.session_state.contexts_rating33 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts33}**", daily_use_frequency, horizontal=True, index=0,key="contexts_33")
+                st.session_state.contexts33= st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0,key="context_use_33")
+                st.session_state.contexts_rating33 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts33}**", daily_use_frequency, horizontal=True, index=0,key="contexts_33")
 
-        #         st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com2")
+                st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com2")
                 
 
 
                 #Language of proficiency 3 and rating
-        #     with st.container(border=True):
-        #         st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang3") 
-        #         st.radio(
-        #         f"**How confident are you in speaking the {st.session_state.lang3} language?**",
-        #         options=scores,
-        #         horizontal=True,
-        #         key="r3"
-        #         )
-        #         st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
-        #         age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
-        #         st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency3")
-        #  #contexts of use and rating for language 3
-        #         st.session_state.contexts111 = st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_111")
-        #         st.session_state.contexts_rating111 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts111}**", daily_use_frequency, horizontal=True, index=0,key="contexts_111")
+            with st.container(border=True):
+                st.selectbox("**Do you speak any other language? Please specify by selecting one of them from the list.**", langs, index=0, key="lang3") 
+                st.radio(
+                f"**How confident are you in speaking the {st.session_state.lang3} language?**",
+                options=scores,
+                horizontal=True,
+                key="r3"
+                )
+                st.caption("1 = None · 2 = Very low · 3 = low · 4 = Fair · 5 = slightly less than adequate · 6 = adequate  · 7 = slightly more than adequate · 8 = good· 9 = Very good · 10 = Excellen or Perfect")
+                age_fluency = ["Birth"] + [str(i) for i in range(1, 150)] #became fluent, reading experience,began to be fluent, began acquiring
+                st.selectbox("**At which age did you start speaking that language? Please try to give an approximate age**", age_fluency,key="fluency3")
+         #contexts of use and rating for language 3
+                st.session_state.contexts111 = st.selectbox("**Do you still speak the language? if yes, when do you mostly make use of that language?**", contexts, index=0,key="context_use_111")
+                st.session_state.contexts_rating111 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts111}**", daily_use_frequency, horizontal=True, index=0,key="contexts_111")
 
-        #         st.session_state.contexts222 = st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0)
-        #         st.session_state.contexts_rating222 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts222}**", daily_use_frequency, horizontal=True, index=0, key="contexts_222")
+                st.session_state.contexts222 = st.selectbox("**When else do you mostly make use of that language?**", contexts, index=0)
+                st.session_state.contexts_rating222 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts222}**", daily_use_frequency, horizontal=True, index=0, key="contexts_222")
 
-        #         st.session_state.contexts333 = st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0)
-        #         st.session_state.contexts_rating333 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts333}**", daily_use_frequency, horizontal=True, index=0,key="contexts_333")
+                st.session_state.contexts333 = st.selectbox("**When else do you mostly make use of that language? Please give an estimation of often**", contexts, index=0)
+                st.session_state.contexts_rating333 = st.radio(f"**How often do you speak that language in that context of {st.session_state.contexts333}**", daily_use_frequency, horizontal=True, index=0,key="contexts_333")
 
-        #         st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com3")
+                st.session_state.method_of_interpersonal_communication = st.multiselect("**How do you usually communicate in that language?**",method_of_interpersonal_communication,key="com3")
 
                ###CULTURES
             with st.container(border=True):
@@ -350,41 +361,49 @@ if not st.session_state.participant_info_done:
     st.stop()     
 
 
-# trial workflow for the end and layout of the stimuli and time
-
-
-trial = st.session_state.trial_idx
-
-if st.session_state.participant_info_done:
-    if trial >= len(st.session_state.stimuli):
-
-        st.success("Experiment finished! Congratulations! Thank you for your precious participation.")
-        st.balloons()
-        st.stop()
-
+# 
+#phase 1 phase 2 trial emphasis and logic trial workflow for the end and layout of the stimuli and time
     
 trial = st.session_state.trial_idx
 total_trials = len(st.session_state.stimuli)
 
+if st.session_state.participant_info_done and trial >= total_trials:
+
+    if st.session_state.phase == 1:
+        # Move to phase 2
+        st.session_state.phase = 2
+        st.session_state.trial_idx = 0
+        st.session_state.start_time = None
+
+        st.success("Phase 1 completed. The experiment will now continue in French 🇫🇷")
+        st.info("Veuillez continuer en français.")
+        st.rerun()
+
+    else:
+        # End experiment after phase 2
+        st.session_state.experiment_finished = True
+if st.session_state.get("experiment_finished"):
+    st.success("Experiment finished! Congratulations! Thank you for your precious participation.")
+    st.balloons()
+    st.stop()
+
+
 
 if st.session_state.participant_info_done:
- st.markdown("""
-### Instructions  
-Please look at the colored square appearing on your screen and provide a description or a name to it. You can be as specific as possible either providing a single term (e.g Dog, cat, orange), multiple inputs terms (e.g. I walk the dog at 8am. The sun is red; red-orange-strawberry) or a paragraph.
-You can provide your responses in two ways: 
--either typed at **Type your response here ⌨️📝** below the image.
--or provide a recorded voice answer through **Record your voice here 🔊🎤**.
- We strongly encourage you to maintain consistency through all the trials using only **ONE input** of response."Please provide any name or description to the color. If you do not have any idea on how to name the color, you can leave it blank. 
- 
-However, after choosing to submit one type of answer (text or audio), it is expected that you apply the same choice of response input for all the following trials. For example, if at Trial1, you recorded your answer for the color, please apply the same for all the other trials as well.  
-Once you have selected and filled your answers, you can click on '**Submit Response ✅**' before moving to the next trial on '**Next⏭️**'button .  
-There is no wrong answer or right answer and we are looking forward to your creativity and effort in naming as many colors as possible.
+ if st.session_state.phase == 1:
+        st.markdown("""
+### Instructions (English)
+Please look at the colored square appearing on your screen and provide a description or a name to it.
+...
 Thank you for cooperation and enjoy the experiment!
 """)
+ else:
+        st.markdown("Veuillez observer le carré coloré affiché à l'écran et fournir une description ou un nom de cette couleur."
+"Vous pouvez utiliser un mot, plusieurs mots ou un paragraphe.")
 #There are other options on the  on ⬅️**LEFT** or ➡️**RIGHT** that will unravel each, a color picker for you to choose a color that you can name"
 with st.expander("🔊 **Voiced Instructions**", expanded=True):
     st.write("Click on the button 'Play' to release the voiced instructions.")
-    # Standard audio player for your custom instructions
+   
     st.audio("Voiced_instructions.mp3", format="audio/mpeg")
 
 # with st.expander("**Ranking guide**🏆",expanded= True):
@@ -394,7 +413,10 @@ with st.expander("🔊 **Voiced Instructions**", expanded=True):
 #     "- **3=Alternative**: Could be typical or not."
 #     "- **0=Indifferent**: No ranking or preference."
 #     """)
-
+if st.session_state.phase == 1:
+    st.info("Phase 1 / 2 – English 🇬🇧")
+else:
+    st.info("Phase 2 / 2 – Français 🇫🇷")
 st.progress(trial / total_trials)
 st.subheader(f"Trial {trial + 1} of {total_trials}")
 
@@ -409,24 +431,23 @@ if "start_time" not in st.session_state:
 if st.session_state.start_time is None:
     st.session_state.start_time = time.time()
 
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 def save_trial_to_supabase(
     participant_id, trial, image, typed_color, rt, 
-    # left_hex_code=None, left_color_name=None, 
-    # right_hex_code=None, right_color_name=None,
-    # left_rank=None, center_rank=None, right_rank=None,
-     gender=None, age=None, education=None, country_birth=None,
-     countries=None, countries2=None, last_education=None, vision=None,
-     lang1="", r1=None, fluency1="", contexts1="", contexts_rating1="",
-    # # lang2="", r2=None, fluency2="", 
-    # contexts11="", contexts_rating11="",
-    # # lang3="", r3=None, fluency3="", 
-    # contexts111="", contexts_rating111="",
-      method_of_interpersonal_communication=None, 
+    left_hex_code=None, left_color_name=None, 
+    right_hex_code=None, right_color_name=None,
+    left_rank=None, center_rank=None, right_rank=None,phase=None,
+    gender=None, age=None, education=None, country_birth=None,
+    countries=None, countries2=None, last_education=None, vision=None,
+    lang1="", r1=None, fluency1="", contexts1="", contexts_rating1="",
+    lang2="", r2=None, fluency2="", contexts11="", contexts_rating11="",
+    lang3="", r3=None, fluency3="", contexts111="", contexts_rating111="",
+    method_of_interpersonal_communication=None, 
     culture1="", culture_rate1=None,
     culture2="", culture_rate2=None,
-    culture3="", culture_rate3=None,
+    culture3="", culture_rate3=None
           ):
     if method_of_interpersonal_communication is None:
         method_of_interpersonal_communication = []
@@ -434,35 +455,37 @@ def save_trial_to_supabase(
     conn = get_db_connection()
     cur = conn.cursor()
 
-#   4 new columns here (    inside insert if speakers has more than one language (lang2, r2, fluency2, contexts11, contexts_rating11,
-            # lang3, r3, fluency3, contexts111, contexts_rating111, culture3, culture_rate3) and those if I have color ranking and matching experiment:           left_hex_code, left_color_name, right_hex_code, right_color_name,
-            #left_rank, center_rank, right_rank,)
+#   4 new columns here 
     
     cur.execute("""
-        INSERT INTO responses_monolinguals (
-            participant_id, trial, image, typed_color, rt, 
+        INSERT INTO response_bilinguals (
+            participant_id, trial, image, typed_color, rt, phase,
             gender, age, education, country_birth, 
             residence_last_year, residence_six_months, last_year_school, vision_issues,
             lang1, r1, fluency1, contexts1, contexts_rating1,
+            lang2, r2, fluency2, contexts11, contexts_rating11,
+            lang3, r3, fluency3, contexts111, contexts_rating111,
             method_of_interpersonal_communication,
-            culture1, culture_rate1, culture2, culture_rate2, 
+            culture1, culture_rate1, culture2, culture_rate2, culture3, culture_rate3
         )
-        VALUES ( %s,
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+        VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s
         )
     """, (
         participant_id, trial, image, typed_color, rt,
-        # left_hex_code, left_color_name, right_hex_code, right_color_name,
-        # left_rank, center_rank, right_rank,
+        left_hex_code, left_color_name, right_hex_code, right_color_name,
+        left_rank, center_rank, right_rank, phase,
         gender, age, education, country_birth, 
         countries, countries2, last_education, vision,
         lang1, r1, fluency1, contexts1, contexts_rating1,
-        # lang2, r2, fluency2, contexts11, contexts_rating11,
-        # lang3, r3, fluency3, contexts111, contexts_rating111,
+        lang2, r2, fluency2, contexts11, contexts_rating11,
+        lang3, r3, fluency3, contexts111, contexts_rating111,
         method_of_interpersonal_communication,
-        culture1, culture_rate1, culture2, culture_rate2,# culture3, culture_rate3
+        culture1, culture_rate1, culture2, culture_rate2, culture3, culture_rate3
     ))
 
     conn.commit()
@@ -570,6 +593,7 @@ with col_center:
 st.markdown("---")
 sub_col, next_col = st.columns(2)
 
+
 if sub_col.button("Submit Response ✅", use_container_width=True):
     # # --- DYNAMIC VALIDATION ---
     # # This checks if ANY of the 6 inputs are filled
@@ -583,13 +607,22 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
     # if not (has_text or has_audio):
     #     st.error("Please provide at least one response (typed or recorded) in any section.")
     # else:
-    has_text = bool(typed_color and typed_color.strip())
-    has_audio = bool(audio_value)
+    typed = bool(typed_color and typed_color.strip())
+    audio = bool(audio_value)
     rt = time.time() - st.session_state.start_time
+    if not typed and not audio:
+        st.error("Please provide a response (text or audio).")
+        st.stop()
 
-    if st.session_state.start_time is None:
-       st.session_state.start_time = time.time()
-       rt = time.time() - st.session_state.start_time
+    chosen_method = "audio" if audio else "text"
+
+    if st.session_state.input_method is None:
+        st.session_state.input_method = chosen_method
+    elif st.session_state.input_method != chosen_method:
+        st.error(f"You must continue using {st.session_state.input_method} for all trials.")
+        st.stop()
+
+    rt = time.time() - st.session_state.start_time
 
         # 1. UPLOAD CENTER STIMULUS AUDIO (Includes filename)
     if audio_value is not None:
@@ -647,6 +680,7 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
                 # left_rank=left_rank,
                 # center_rank=center_rank,
                 # right_rank=right_rank, # The text from right input
+                phase= st.session_state.age,
                 gender=st.session_state.gender,
                 age=st.session_state.age,
                 education=st.session_state.education,
@@ -655,28 +689,28 @@ if sub_col.button("Submit Response ✅", use_container_width=True):
                 countries2=st.session_state.countries2,
                 last_education=st.session_state.last_education,
                 vision=st.session_state.vision, 
-                 lang1=st.session_state.lang1,
-                 r1=st.session_state.r1,
-                 fluency1=st.session_state.fluency1,
-                 contexts1=st.session_state.contexts1,
-                 contexts_rating1=st.session_state.contexts_rating1,
-                # lang2=st.session_state.lang2,
-                # r2=st.session_state.r2,
-                # fluency2=st.session_state.fluency2,
-                # contexts11=st.session_state.contexts11,
-                # contexts_rating11=st.session_state.contexts_rating11,
-                # lang3=st.session_state.lang3,
-                # r3=st.session_state.r3,
-                # fluency3=st.session_state.fluency3,
-                # contexts111=st.session_state.contexts111,
-                # contexts_rating111=st.session_state.contexts_rating111,
+                lang1=st.session_state.lang1,
+                r1=st.session_state.r1,
+                fluency1=st.session_state.fluency1,
+                contexts1=st.session_state.contexts1,
+                contexts_rating1=st.session_state.contexts_rating1,
+                lang2=st.session_state.lang2,
+                r2=st.session_state.r2,
+                fluency2=st.session_state.fluency2,
+                contexts11=st.session_state.contexts11,
+                contexts_rating11=st.session_state.contexts_rating11,
+                lang3=st.session_state.lang3,
+                r3=st.session_state.r3,
+                fluency3=st.session_state.fluency3,
+                contexts111=st.session_state.contexts111,
+                contexts_rating111=st.session_state.contexts_rating111,
                 method_of_interpersonal_communication=st.session_state.method_of_interpersonal_communication,
                 culture1=st.session_state.culture1,
                 culture_rate1=st.session_state.culture_rate1,
                 culture2=st.session_state.culture2,
                 culture_rate2=st.session_state.culture_rate2,
-                 culture3=st.session_state.culture3,
-                 culture_rate3=st.session_state.culture_rate3,
+                culture3=st.session_state.culture3,
+                culture_rate3=st.session_state.culture_rate3,
             )
         
     st.session_state.trial_submitted = True
@@ -690,26 +724,26 @@ if st.session_state.get("trial_submitted"):
 
 # NEXT TRIAL BUTTON 
 if next_col.button("Next Trial ⏭️", use_container_width=True):
-    if st.session_state.get("trial_submitted"):
-        st.session_state.trial_idx += 1
-        st.session_state.trial_submitted = False
-        st.session_state.start_time = None
-        st.rerun()
-    else:
-        
+
+    if not st.session_state.trial_submitted:
         st.warning("Please Submit first.")
- 
+        st.stop()
 
+    st.session_state.trial_idx += 1
+    st.session_state.trial_submitted = False
+    st.session_state.start_time = None
 
+    # Phase finished?
+    if st.session_state.trial_idx >= total_trials:
 
+        if st.session_state.phase == 1:
+            # Move to phase 2
+            st.session_state.phase = 2
+            st.session_state.trial_idx = 0
+            st.success("Phase 1 completed. Starting French phase 🇫🇷")
 
-     
- 
- 
+        else:
+            # Experiment finished
+            st.session_state.experiment_finished = True
 
-         
-
-
-
-
-
+st.rerun() 
