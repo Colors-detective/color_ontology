@@ -12,7 +12,6 @@ import tempfile
 import uuid
 
 
-secrets = toml.load(".streamlit/secrets_bi.toml")
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
